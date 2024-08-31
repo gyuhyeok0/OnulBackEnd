@@ -18,9 +18,16 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
 
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+
 logging:
   level:
-    root: info
+#    root: info
+    org.springframework.web: DEBUG
+    org.thymeleaf: DEBUG
 
 jwt:
   key: wERjtIdxQ8lNjF0w/AAiN6HqTASaCAUzSq6nbKefMwf5CbPE8GvwLsClz94uVt9Q1esxYwwXVU+BYn7/mR01Qg==
