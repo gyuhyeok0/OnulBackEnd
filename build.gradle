@@ -45,6 +45,13 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    implementation 'com.twilio.sdk:twilio:9.13.1'
+    implementation 'com.googlecode.libphonenumber:libphonenumber:8.12.30'
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    //aws sns
+    implementation 'software.amazon.awssdk:sns:2.16.27'
 }
 
 tasks.named('test') {
