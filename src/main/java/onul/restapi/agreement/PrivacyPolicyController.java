@@ -16,7 +16,6 @@ public class PrivacyPolicyController {
         Locale userLocale = request.getLocale();
         String language = userLocale.getLanguage();
 
-
         // 기본 언어 설정 (영어)
         String viewName = "privacy-policy_en";
 
@@ -58,6 +57,6 @@ public class PrivacyPolicyController {
                 break;
         }
 
-        return new ModelAndView(viewName);
+        return new ModelAndView(viewName); // HTML 페이지를 반환
     }
 }
