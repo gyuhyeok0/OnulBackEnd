@@ -19,6 +19,8 @@ import software.amazon.awssdk.services.sns.model.PublishResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import static javax.management.timer.Timer.ONE_DAY;
+
 @Service
 @Transactional
 public class SmsService {
@@ -26,7 +28,11 @@ public class SmsService {
     private final SnsClient snsClient;
     private final CodeRepository codeRepository;
     private final MemberRepository memberRepository;
+    private final int REQUEST_LIMIT = 4; // 최대 요청 횟수
+    private final long TIME_LIMIT = TimeUnit.HOURS.toMillis(1); // 제한 시간 1시간
+    private final int DAILY_REQUEST_LIMIT = 8; // 하루 최대 요청 횟수
 
+    // aws sms 셋팅
     public SmsService(@Value("${aws.access-key}") String accessKey,
                       @Value("${aws.secret-key}") String secretKey,
                       @Value("${aws.region}") String region,
@@ -41,10 +47,10 @@ public class SmsService {
         this.memberRepository = membersRepository;
     }
 
-
     // 인증코드 전송
     public SmsResponse sendSms(String phoneNumber) {
         String hashedPhoneNumber = hashPhoneNumber(phoneNumber); // 전화번호 해시화
+        long currentTime = System.currentTimeMillis();
 
         // 전화번호 등록 여부 확인
         if (isPhoneNumberRegistered(hashedPhoneNumber)) {
@@ -52,24 +58,67 @@ public class SmsService {
             return new SmsResponse("alreadyPhoneNumber");  // 상태만 반환
         }
 
-        // 기존 인증 코드가 있는지 확인 후 삭제
+        // 기존 인증 코드 확인
         Optional<CodeEntity> existingCode = Optional.ofNullable(codeRepository.findByPhoneNumber(hashedPhoneNumber));
-        existingCode.ifPresent(codeEntity -> codeRepository.deleteByPhoneNumber(hashedPhoneNumber));
 
-        // 인증 코드 생성 및 SNS 전송
-        String verificationCode = generateVerificationCode();
-        String message = String.format("Welcome to onul, your verification code is %s", verificationCode);
+        if (existingCode.isPresent()) {
+            CodeEntity codeEntity = existingCode.get();
+            long lastRequestTime = codeEntity.getLastRequestTime();
+            long timeSinceLastRequest = currentTime - lastRequestTime;
+            long lastRequestDay = codeEntity.getLastRequestDay();
+            long timeSinceLastDay = currentTime - lastRequestDay;
 
-        PublishRequest request = PublishRequest.builder()
-                .message(message)
-                .phoneNumber(phoneNumber)
-                .build();
+            // 하루 제한 체크
+            if (timeSinceLastDay < ONE_DAY) {
+                if (codeEntity.getDailyRequestCount() >= DAILY_REQUEST_LIMIT) {
+                    return new SmsResponse("DAILY_LIMIT_EXCEEDED"); // 일일 요청 제한 초과
+                } else {
+                    // 요청 횟수 증가
+                    codeEntity.setDailyRequestCount(codeEntity.getDailyRequestCount() + 1);
+                }
+            } else {
+                // 하루가 지났다면 일일 요청 횟수 초기화
+                codeEntity.setDailyRequestCount(1);
+                codeEntity.setLastRequestDay(currentTime); // 일일 제한 갱신
+            }
 
-        PublishResponse result = snsClient.publish(request);
+            // 시간 제한 안에 요청한 경우
+            if (timeSinceLastRequest < TIME_LIMIT) {
+                // 요청 횟수 초과한 경우
+                if (codeEntity.getRequestCount() >= REQUEST_LIMIT) {
+                    return new SmsResponse("LIMIT_EXCEEDED"); // 요청 제한 초과
+                } else {
+                    // 요청 횟수 증가 및 시간 갱신
+                    codeEntity.setRequestCount(codeEntity.getRequestCount() + 1);
+                    codeEntity.setLastRequestTime(currentTime); // 마지막 요청 시간 갱신
+                    codeRepository.save(codeEntity);
+                }
+            } else {
+                // 제한 시간을 초과하면 요청 횟수 초기화
+                codeEntity.setRequestCount(1); // 요청 횟수 초기화
+                codeEntity.setLastRequestTime(currentTime); // 마지막 요청 시간 갱신
+                codeRepository.save(codeEntity);
+            }
+        } else {
+            // 처음 요청일 경우, 새로운 인증 코드 생성 및 저장
+            String verificationCode = generateVerificationCode();
+            String message = String.format("Welcome to onul, your verification code is %s", verificationCode);
 
-        // 새로운 인증 코드 데이터베이스 저장 (12시간 유효)
-        CodeEntity newCodeEntity = new CodeEntity(hashedPhoneNumber, verificationCode, System.currentTimeMillis() + TimeUnit.HOURS.toMillis(12));
-        codeRepository.save(newCodeEntity);
+            PublishRequest request = PublishRequest.builder()
+                    .message(message)
+                    .phoneNumber(phoneNumber)
+                    .build();
+
+            PublishResponse result = snsClient.publish(request);
+
+            // 새로운 인증 코드 데이터베이스 저장 (12시간 유효)
+            CodeEntity newCodeEntity = new CodeEntity(hashedPhoneNumber, verificationCode, currentTime + TimeUnit.MINUTES.toMillis(5), currentTime);
+            newCodeEntity.setRequestCount(1); // 첫 요청
+            newCodeEntity.setLastRequestTime(currentTime); // 첫 요청 시간 저장
+            newCodeEntity.setDailyRequestCount(1); // 첫 일일 요청으로 설정
+            newCodeEntity.setLastRequestDay(currentTime); // 일일 제한 시간 저장
+            codeRepository.save(newCodeEntity);
+        }
 
         return new SmsResponse("success");  // 상태만 반환
     }
