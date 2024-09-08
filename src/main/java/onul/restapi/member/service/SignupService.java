@@ -96,4 +96,10 @@ public class SignupService {
         // 데이터베이스에 저장
         memberRepository.save(newMember);
     }
+
+
+    // 아이디 중복 확인
+    public boolean isMemberIdDuplicate(String memberId) {
+        return memberRepository.existsByMemberId(memberId);  // DB에 해당 memberId가 있는지 확인
+    }
 }

@@ -10,4 +10,6 @@ public interface MemberRepository extends JpaRepository<Members, String> {
 
     // sms 인종코드 발송시 전화번호 확인
     boolean existsByMemberPhoneNumber(String phoneNumber);
+
+    boolean existsByMemberId(String memberId);
 }
