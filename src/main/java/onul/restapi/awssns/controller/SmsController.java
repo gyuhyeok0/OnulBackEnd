@@ -5,6 +5,7 @@ import onul.restapi.awssns.entity.CodeEntity;
 import onul.restapi.awssns.repository.CodeRepository;
 import onul.restapi.awssns.service.SmsResponse;
 import onul.restapi.awssns.service.SmsService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,20 +29,36 @@ public class SmsController {
     }
 
 
+    // sms 인증번호 요청
     @PostMapping("/send")
     public ResponseEntity<SmsResponse> sendSms(@RequestBody VerificationRequestDTO smsRequest) {
         System.out.println(smsRequest.getPhoneNumber());
 
-        // SmsResponse 객체를 반환 (상태만 포함)
+        // SmsService에서 요청을 처리하고 상태를 반환
         SmsResponse response = smsService.sendSms(smsRequest.getPhoneNumber());
 
         System.out.println("응답: " + response);
 
-        // JSON 형식으로 응답을 반환 (상태만 포함)
+        // 상태에 따라 적절한 HTTP 응답 반환
+        if ("LIMIT_EXCEEDED".equals(response.getStatus())) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .contentType(MediaType.APPLICATION_JSON) // 응답을 JSON으로 반환
+                    .body(response);
+        }
+
+        // 일일 요청 횟수 초과 시 처리
+        if ("DAILY_LIMIT_EXCEEDED".equals(response.getStatus())) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .contentType(MediaType.APPLICATION_JSON) // 응답을 JSON으로 반환
+                    .body(response);
+        }
+
+        // 성공적인 요청 처리
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON) // 응답 타입 명시
                 .body(response);  // 상태만 반환
     }
+
 
 
     @PostMapping("/verify")

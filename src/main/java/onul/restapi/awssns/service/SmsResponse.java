@@ -1,17 +1,23 @@
 package onul.restapi.awssns.service;
 
 public class SmsResponse {
-    private String state; // 메시지를 제거하고 상태만 남김
 
-    public SmsResponse(String state) {
-        this.state = state;
+    private String status;
+
+    // 기본 생성자
+    public SmsResponse() {}
+
+    // 생성자
+    public SmsResponse(String status) {
+        this.status = status;
     }
 
-    public String getState() {
-        return state;
+    // Getter와 Setter
+    public String getStatus() {
+        return status;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
