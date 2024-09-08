@@ -38,6 +38,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         List<String> roleLeessList = Arrays.asList(
                 "/privacy-policy.html",
 
+                "/signup/(.*)",
                 "/privacy-policy/(.*)",
                 "/sms/(.*)",
                 "/members/(.*)",

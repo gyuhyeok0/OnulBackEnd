@@ -3,7 +3,10 @@ package onul.restapi.awssns.controller;
 import onul.restapi.awssns.dto.VerificationRequestDTO;
 import onul.restapi.awssns.entity.CodeEntity;
 import onul.restapi.awssns.repository.CodeRepository;
+import onul.restapi.awssns.service.SmsResponse;
 import onul.restapi.awssns.service.SmsService;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +27,20 @@ public class SmsController {
         this.codeRepository = codeRepository;
     }
 
+
     @PostMapping("/send")
-    public String sendSms(@RequestBody VerificationRequestDTO smsRequest) {
-        return smsService.sendSms(smsRequest.getPhoneNumber());
+    public ResponseEntity<SmsResponse> sendSms(@RequestBody VerificationRequestDTO smsRequest) {
+        System.out.println(smsRequest.getPhoneNumber());
+
+        // SmsResponse 객체를 반환 (상태만 포함)
+        SmsResponse response = smsService.sendSms(smsRequest.getPhoneNumber());
+
+        System.out.println("응답: " + response);
+
+        // JSON 형식으로 응답을 반환 (상태만 포함)
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON) // 응답 타입 명시
+                .body(response);  // 상태만 반환
     }
 
 
@@ -35,9 +49,11 @@ public class SmsController {
         String phoneNumber = verificationRequest.getPhoneNumber();
         String code = verificationRequest.getCode();
 
-        System.out.println(code);
-        // 데이터베이스에서 전화번호로 코드 엔티티 조회
-        Optional<CodeEntity> codeEntityOptional = Optional.ofNullable(codeRepository.findByPhoneNumber(phoneNumber));
+        // 전화번호 해시화
+        String hashedPhoneNumber = smsService.hashPhoneNumber(phoneNumber);
+
+        // 해시화된 전화번호로 코드 엔티티 조회
+        Optional<CodeEntity> codeEntityOptional = Optional.ofNullable(codeRepository.findByPhoneNumber(hashedPhoneNumber));
 
         if (codeEntityOptional.isEmpty()) {
             return "Invalid phone number";
