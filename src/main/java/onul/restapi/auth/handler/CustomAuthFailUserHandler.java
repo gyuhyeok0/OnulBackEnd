@@ -26,7 +26,7 @@ public class CustomAuthFailUserHandler implements AuthenticationFailureHandler {
         exceptionMessages.put(AccountExpiredException.class, "만료된 계정입니다");
         exceptionMessages.put(CredentialsExpiredException.class, "자격증명이 만료되었습니다");
         exceptionMessages.put(AuthenticationCredentialsNotFoundException.class, "인증요청이 거부되었습니다");
-        exceptionMessages.put(UsernameNotFoundException.class, "존재하지 않는 이메일입니다");
+        exceptionMessages.put(UsernameNotFoundException.class, "존재하지 않는 사용자입니다");
     }
 
     @Override
