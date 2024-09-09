@@ -1,10 +1,11 @@
 package onul.restapi.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -14,20 +15,29 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MemberDTO implements UserDetails {
 
+    @JsonProperty("memberId")
     private String memberId;
-    private String memberPassword;
-    private String memberName;
-    private String memberPhoneNumber;
-    private String memberStatus;
 
+    @JsonProperty("memberPassword")
+    private String memberPassword;
+
+    @JsonProperty("memberName")
+    private String memberName;
+
+    @JsonProperty("memberPhoneNumber")
+    private String memberPhoneNumber;
+
+    @JsonProperty("phoneNumber") // 추가된 필드
+    private String phoneNumber;
+
+    @JsonProperty("memberStatus")
+    private String memberStatus;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-
         return List.of();
     }
 
