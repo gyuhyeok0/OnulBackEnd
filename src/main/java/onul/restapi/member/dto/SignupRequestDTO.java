@@ -3,6 +3,7 @@ package onul.restapi.member.dto;
 
 // 회원가입 인증 관련
 public class SignupRequestDTO {
+
     private String memberId;
     private String memberPassword;
     private String memberCountryCode;

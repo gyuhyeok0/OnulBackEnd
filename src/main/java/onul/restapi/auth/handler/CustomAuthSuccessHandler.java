@@ -25,7 +25,7 @@ public class CustomAuthSuccessHandler extends SavedRequestAwareAuthenticationSuc
 
         MemberDTO member = ((MemberDTO) authentication.getPrincipal());
 
-        System.out.println("member 들들?"+member);
+//        System.out.println("member 들들?"+member);
 
         HashMap<String,Object> responseMap = new HashMap<>();
         JSONObject jsonValue = null;
@@ -38,7 +38,9 @@ public class CustomAuthSuccessHandler extends SavedRequestAwareAuthenticationSuc
             String token = TokenUtils.generateJwtToken(member);
 
             TokenDTO tokenDTO = TokenDTO.builder()
-                    .memberName(member.getMemberName())
+                    .memberId(member.getMemberId())
+//                    .memberName(member.getMemberName())
+                    .memberSignupDate(member.getMemberSignupDate())
                     .accessToken(token)
                     .grantType(AuthConstants.TOKEN_TYPE)
                     .build();

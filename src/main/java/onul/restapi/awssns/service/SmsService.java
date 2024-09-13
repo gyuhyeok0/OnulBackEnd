@@ -54,7 +54,7 @@ public class SmsService {
 
         // 전화번호 등록 여부 확인
         if (isPhoneNumberRegistered(hashedPhoneNumber)) {
-            System.out.println("이미 등록된 전화번호입니다.");
+//            System.out.println("이미 등록된 전화번호입니다.");
             return new SmsResponse("alreadyPhoneNumber");  // 상태만 반환
         }
 

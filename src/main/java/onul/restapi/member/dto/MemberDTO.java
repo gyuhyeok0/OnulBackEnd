@@ -6,7 +6,8 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,9 +25,6 @@ public class MemberDTO implements UserDetails {
     @JsonProperty("memberPassword")
     private String memberPassword;
 
-    @JsonProperty("memberName")
-    private String memberName;
-
     @JsonProperty("memberPhoneNumber")
     private String memberPhoneNumber;
 
@@ -36,9 +34,12 @@ public class MemberDTO implements UserDetails {
     @JsonProperty("memberStatus")
     private String memberStatus;
 
+    @JsonProperty("memberSignupDate") // 회원가입 날짜 필드
+    private Date memberSignupDate;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(); // 권한 설정 비어 있음
     }
 
     @Override
@@ -51,23 +52,24 @@ public class MemberDTO implements UserDetails {
         return this.memberId;
     }
 
+
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

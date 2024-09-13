@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Service
 public class SignupService {
@@ -73,8 +74,8 @@ public class SignupService {
 
     // 사용자 정보 저장 (회원가입 일시와 enum 처리 포함)
     private void saveUser(String memberId, String hashedPassword, String memberCountryCode, String hashedPhoneNumber) {
-        // 회원 가입 일시
-        Date signupDate = new Date();
+
+        Date signupDate = new Date(System.currentTimeMillis());
 
         // 기본 약관 동의 상태와 회원 상태 설정
         UserConsentState consentState = UserConsentState.AGREED; // 동의로 저장
@@ -90,8 +91,6 @@ public class SignupService {
                 signupDate,
                 memberStatus
         );
-
-        System.out.println("너도 실행 됨? " + newMember);
 
         // 데이터베이스에 저장
         memberRepository.save(newMember);

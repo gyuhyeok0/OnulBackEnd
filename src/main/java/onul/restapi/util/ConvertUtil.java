@@ -9,7 +9,6 @@ public class ConvertUtil {
 
     public static Object convertObjectToJsonObject(Object obj){
 
-        System.out.println("convertObjectToJsonObject");
         ObjectMapper mapper = new ObjectMapper();
         JSONParser parser = new JSONParser();
         String convertJsonString;

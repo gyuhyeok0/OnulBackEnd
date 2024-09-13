@@ -72,8 +72,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     Claims claims = TokenUtils.getClaimsFromToken(token);
 
                     MemberDTO authentication = new MemberDTO();
-                    authentication.setMemberName(claims.get("memberName").toString());
-                    System.out.println("claims ==================== " + claims.get("memberRole"));
+                    authentication.setMemberId(claims.get("memberId").toString());
+//                    System.out.println("claims ==================== " + claims.get("memberRole"));
 
                     AbstractAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken.authenticated(authentication, token, authentication.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetails(request));
