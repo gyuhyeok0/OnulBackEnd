@@ -28,7 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
-        System.out.println("member 아디디 " + memberId);
 
         Members member = memberRepository.findByMemberId(memberId);
 
@@ -36,10 +35,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with memberId: " + memberId);
         }
 
-        System.out.println(member);
         MemberDTO memberDTO = modelMapper.map(member, MemberDTO.class);
-
-        System.out.println(memberDTO);
 
         return memberDTO;
     }

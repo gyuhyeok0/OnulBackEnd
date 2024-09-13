@@ -21,7 +21,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         UsernamePasswordAuthenticationToken loginToken = (UsernamePasswordAuthenticationToken) authentication;
 
-        System.out.println("로그인 할때 여기서 토큰을 가지고 온다 "+ loginToken.getName());
+//        System.out.println("로그인 할때 여기서 토큰을 가지고 온다 "+ loginToken.getName());
 
         String memberId = loginToken.getName();
         String password = (String) loginToken.getCredentials();

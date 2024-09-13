@@ -32,12 +32,9 @@ public class SmsController {
     // sms 인증번호 요청
     @PostMapping("/send")
     public ResponseEntity<SmsResponse> sendSms(@RequestBody VerificationRequestDTO smsRequest) {
-        System.out.println(smsRequest.getPhoneNumber());
 
         // SmsService에서 요청을 처리하고 상태를 반환
         SmsResponse response = smsService.sendSms(smsRequest.getPhoneNumber());
-
-        System.out.println("응답: " + response);
 
         // 상태에 따라 적절한 HTTP 응답 반환
         if ("LIMIT_EXCEEDED".equals(response.getStatus())) {

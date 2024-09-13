@@ -29,9 +29,6 @@ public class SignupController {
     @PostMapping ("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequestDTO request) {
 
-        System.out.println("컨트롤러 실행되었니?");
-        System.out.println(request.getMemberPhoneNumber());
-
         // 유효성 검사 정규식 (클라이언트에서 사용한 것과 동일)
         String memberIdRegex = "^(?=[a-zA-Z0-9]{6,})(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z0-9]*$"; // 영문자와 숫자 모두 포함, 6자리 이상
         String passwordRegex = "^(?=.*[a-zA-Z])(?=.*[0-9]).{6,20}$"; // 영문자와 숫자 필수, 6-20자리
