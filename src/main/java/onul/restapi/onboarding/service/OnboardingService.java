@@ -15,9 +15,9 @@ public class OnboardingService {
         this.onboardingRepository = onboardingRepository;
     }
 
+
     // 온보딩이 필요한지 여부를 체크하는 메서드
     public boolean checkIfNeedsOnboarding(String memberId) {
-
         // 회원의 Onboarding 정보가 없는 경우 true 반환 (즉, 온보딩이 필요)
         return onboardingRepository.findByMember_MemberId(memberId).isEmpty();
     }

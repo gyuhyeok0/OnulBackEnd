@@ -8,14 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/onboarding")
 public class OnboardingController {
 
     private final OnboardingService onboardingService;
 
+    @Autowired
     public OnboardingController(OnboardingService onboardingService) {
         this.onboardingService = onboardingService;
     }
@@ -24,8 +23,7 @@ public class OnboardingController {
     public ResponseEntity<Boolean> checkOnboardingStatus(@RequestParam String memberId) {
         boolean needsOnboarding = onboardingService.checkIfNeedsOnboarding(memberId);
 
-        // Boolean 값만 바로 반환
+        System.out.println(needsOnboarding);
         return ResponseEntity.ok(needsOnboarding);
     }
-
 }
