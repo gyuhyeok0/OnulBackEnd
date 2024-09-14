@@ -31,7 +31,7 @@ public class SignupController {
 
         // 유효성 검사 정규식 (클라이언트에서 사용한 것과 동일)
         String memberIdRegex = "^(?=[a-zA-Z0-9]{6,})(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z0-9]*$"; // 영문자와 숫자 모두 포함, 6자리 이상
-        String passwordRegex = "^(?=.*[a-zA-Z])(?=.*[0-9]).{6,20}$"; // 영문자와 숫자 필수, 6-20자리
+        String passwordRegex = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,20}$";
 
         // 요청 데이터 유효성 검사
         if (request.getMemberId() == null || request.getMemberPassword() == null ||

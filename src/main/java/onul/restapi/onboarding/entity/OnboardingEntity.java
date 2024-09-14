@@ -24,14 +24,6 @@ public class OnboardingEntity {
     @Column(name = "weight")
     private Double weight;
 
-    @Column(name = "skeletal_muscle_mass")
-    private Double skeletalMuscleMass;
-
-    @Column(name = "body_fat_mass")
-    private Double bodyFatMass;
-
-    @Column(name = "body_fat_percentage")
-    private Double bodyFatPercentage;
 
     // 운동 기록 (1RM)
     @Column(name = "bench_press_1rm")
@@ -43,17 +35,15 @@ public class OnboardingEntity {
     @Column(name = "deadlift_1rm")
     private Double deadlift1RM;
 
+
     public OnboardingEntity() {
     }
 
-    public OnboardingEntity(Long onboardingId, Members member, Double height, Double weight, Double skeletalMuscleMass, Double bodyFatMass, Double bodyFatPercentage, Double benchPress1RM, Double squat1RM, Double deadlift1RM) {
+    public OnboardingEntity(Long onboardingId, Members member, Double height, Double weight, Double benchPress1RM, Double squat1RM, Double deadlift1RM) {
         this.onboardingId = onboardingId;
         this.member = member;
         this.height = height;
         this.weight = weight;
-        this.skeletalMuscleMass = skeletalMuscleMass;
-        this.bodyFatMass = bodyFatMass;
-        this.bodyFatPercentage = bodyFatPercentage;
         this.benchPress1RM = benchPress1RM;
         this.squat1RM = squat1RM;
         this.deadlift1RM = deadlift1RM;
@@ -89,30 +79,6 @@ public class OnboardingEntity {
 
     public void setWeight(Double weight) {
         this.weight = weight;
-    }
-
-    public Double getSkeletalMuscleMass() {
-        return skeletalMuscleMass;
-    }
-
-    public void setSkeletalMuscleMass(Double skeletalMuscleMass) {
-        this.skeletalMuscleMass = skeletalMuscleMass;
-    }
-
-    public Double getBodyFatMass() {
-        return bodyFatMass;
-    }
-
-    public void setBodyFatMass(Double bodyFatMass) {
-        this.bodyFatMass = bodyFatMass;
-    }
-
-    public Double getBodyFatPercentage() {
-        return bodyFatPercentage;
-    }
-
-    public void setBodyFatPercentage(Double bodyFatPercentage) {
-        this.bodyFatPercentage = bodyFatPercentage;
     }
 
     public Double getBenchPress1RM() {

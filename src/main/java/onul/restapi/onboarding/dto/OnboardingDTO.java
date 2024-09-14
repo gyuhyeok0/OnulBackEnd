@@ -2,104 +2,83 @@ package onul.restapi.onboarding.dto;
 
 public class OnboardingDTO {
 
-    private Long id;
-    private String phoneNumber;
-    private String code;
-    private Long expiryTime;
-    private int requestCount;
-    private Long lastRequestTime;
-    private int dailyRequestCount;
-    private Long lastRequestDay;
+    private Long onboardingId;
+    private Long memberId;  // Members 엔티티 대신 memberId만 사용
+    private Double height;
+    private Double weight;
+    private Double benchPress1RM;
+    private Double squat1RM;
+    private Double deadlift1RM;
 
+    // 기본 생성자
     public OnboardingDTO() {
     }
 
-    public OnboardingDTO(Long id, String phoneNumber, String code, Long expiryTime, int requestCount, Long lastRequestTime, int dailyRequestCount, Long lastRequestDay) {
-        this.id = id;
-        this.phoneNumber = phoneNumber;
-        this.code = code;
-        this.expiryTime = expiryTime;
-        this.requestCount = requestCount;
-        this.lastRequestTime = lastRequestTime;
-        this.dailyRequestCount = dailyRequestCount;
-        this.lastRequestDay = lastRequestDay;
+    // 모든 필드를 포함하는 생성자
+    public OnboardingDTO(Long onboardingId, Long memberId, Double height, Double weight, Double benchPress1RM, Double squat1RM, Double deadlift1RM) {
+        this.onboardingId = onboardingId;
+        this.memberId = memberId;
+        this.height = height;
+        this.weight = weight;
+        this.benchPress1RM = benchPress1RM;
+        this.squat1RM = squat1RM;
+        this.deadlift1RM = deadlift1RM;
     }
 
-    public Long getId() {
-        return id;
+    // Getters and Setters
+    public Long getOnboardingId() {
+        return onboardingId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setOnboardingId(Long onboardingId) {
+        this.onboardingId = onboardingId;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public Long getMemberId() {
+        return memberId;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setMemberId(Long memberId) {
+        this.memberId = memberId;
     }
 
-    public String getCode() {
-        return code;
+    public Double getHeight() {
+        return height;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setHeight(Double height) {
+        this.height = height;
     }
 
-    public Long getExpiryTime() {
-        return expiryTime;
+    public Double getWeight() {
+        return weight;
     }
 
-    public void setExpiryTime(Long expiryTime) {
-        this.expiryTime = expiryTime;
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
-    public int getRequestCount() {
-        return requestCount;
+    public Double getBenchPress1RM() {
+        return benchPress1RM;
     }
 
-    public void setRequestCount(int requestCount) {
-        this.requestCount = requestCount;
+    public void setBenchPress1RM(Double benchPress1RM) {
+        this.benchPress1RM = benchPress1RM;
     }
 
-    public Long getLastRequestTime() {
-        return lastRequestTime;
+    public Double getSquat1RM() {
+        return squat1RM;
     }
 
-    public void setLastRequestTime(Long lastRequestTime) {
-        this.lastRequestTime = lastRequestTime;
+    public void setSquat1RM(Double squat1RM) {
+        this.squat1RM = squat1RM;
     }
 
-    public int getDailyRequestCount() {
-        return dailyRequestCount;
+    public Double getDeadlift1RM() {
+        return deadlift1RM;
     }
 
-    public void setDailyRequestCount(int dailyRequestCount) {
-        this.dailyRequestCount = dailyRequestCount;
-    }
-
-    public Long getLastRequestDay() {
-        return lastRequestDay;
-    }
-
-    public void setLastRequestDay(Long lastRequestDay) {
-        this.lastRequestDay = lastRequestDay;
-    }
-
-    @Override
-    public String toString() {
-        return "OnboardingDTO{" +
-                "id=" + id +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", code='" + code + '\'' +
-                ", expiryTime=" + expiryTime +
-                ", requestCount=" + requestCount +
-                ", lastRequestTime=" + lastRequestTime +
-                ", dailyRequestCount=" + dailyRequestCount +
-                ", lastRequestDay=" + lastRequestDay +
-                '}';
+    public void setDeadlift1RM(Double deadlift1RM) {
+        this.deadlift1RM = deadlift1RM;
     }
 }
