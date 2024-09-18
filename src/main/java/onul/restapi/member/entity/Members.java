@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Table(name = "tbl_members")
 @ToString
 public class Members {
@@ -54,5 +55,6 @@ public class Members {
                 this.memberPhoneNumber, this.memberCountryCode, this.memberUserConsent,
                 this.memberSignupDate, this.memberStatus);
     }
+
 
 }
