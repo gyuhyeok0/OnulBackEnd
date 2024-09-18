@@ -1,84 +1,126 @@
 package onul.restapi.onboarding.dto;
 
 public class OnboardingDTO {
+    private String memberId;
+    private double height; // 소수점 포함을 위해 double로 변경
+    private double weight; // 소수점 포함을 위해 double로 변경
+    private int benchPress1rm;
+    private int deadlift1rm;
+    private int squat1rm;
+    private String gender;
+    private String heightUnit;
+    private String weightUnit;
+    private String basicUnit;
 
-    private Long onboardingId;
-    private Long memberId;  // Members 엔티티 대신 memberId만 사용
-    private Double height;
-    private Double weight;
-    private Double benchPress1RM;
-    private Double squat1RM;
-    private Double deadlift1RM;
-
-    // 기본 생성자
     public OnboardingDTO() {
     }
 
-    // 모든 필드를 포함하는 생성자
-    public OnboardingDTO(Long onboardingId, Long memberId, Double height, Double weight, Double benchPress1RM, Double squat1RM, Double deadlift1RM) {
-        this.onboardingId = onboardingId;
+    public OnboardingDTO(String memberId, double height, double weight, int benchPress1rm, int deadlift1rm, int squat1rm, String gender, String heightUnit, String weightUnit, String basicUnit) {
         this.memberId = memberId;
         this.height = height;
         this.weight = weight;
-        this.benchPress1RM = benchPress1RM;
-        this.squat1RM = squat1RM;
-        this.deadlift1RM = deadlift1RM;
+        this.benchPress1rm = benchPress1rm;
+        this.deadlift1rm = deadlift1rm;
+        this.squat1rm = squat1rm;
+        this.gender = gender;
+        this.heightUnit = heightUnit;
+        this.weightUnit = weightUnit;
+        this.basicUnit = basicUnit;
     }
 
-    // Getters and Setters
-    public Long getOnboardingId() {
-        return onboardingId;
-    }
-
-    public void setOnboardingId(Long onboardingId) {
-        this.onboardingId = onboardingId;
-    }
-
-    public Long getMemberId() {
+    public String getMemberId() {
         return memberId;
     }
 
-    public void setMemberId(Long memberId) {
+    public void setMemberId(String memberId) {
         this.memberId = memberId;
     }
 
-    public Double getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(Double height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 
-    public Double getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public Double getBenchPress1RM() {
-        return benchPress1RM;
+    public int getBenchPress1rm() {
+        return benchPress1rm;
     }
 
-    public void setBenchPress1RM(Double benchPress1RM) {
-        this.benchPress1RM = benchPress1RM;
+    public void setBenchPress1rm(int benchPress1rm) {
+        this.benchPress1rm = benchPress1rm;
     }
 
-    public Double getSquat1RM() {
-        return squat1RM;
+    public int getDeadlift1rm() {
+        return deadlift1rm;
     }
 
-    public void setSquat1RM(Double squat1RM) {
-        this.squat1RM = squat1RM;
+    public void setDeadlift1rm(int deadlift1rm) {
+        this.deadlift1rm = deadlift1rm;
     }
 
-    public Double getDeadlift1RM() {
-        return deadlift1RM;
+    public int getSquat1rm() {
+        return squat1rm;
     }
 
-    public void setDeadlift1RM(Double deadlift1RM) {
-        this.deadlift1RM = deadlift1RM;
+    public void setSquat1rm(int squat1rm) {
+        this.squat1rm = squat1rm;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getHeightUnit() {
+        return heightUnit;
+    }
+
+    public void setHeightUnit(String heightUnit) {
+        this.heightUnit = heightUnit;
+    }
+
+    public String getWeightUnit() {
+        return weightUnit;
+    }
+
+    public void setWeightUnit(String weightUnit) {
+        this.weightUnit = weightUnit;
+    }
+
+    public String getBasicUnit() {
+        return basicUnit;
+    }
+
+    public void setBasicUnit(String basicUnit) {
+        this.basicUnit = basicUnit;
+    }
+
+    @Override
+    public String toString() {
+        return "OnboardingDTO{" +
+                "memberId='" + memberId + '\'' +
+                ", height=" + height +
+                ", weight=" + weight +
+                ", benchPress1rm=" + benchPress1rm +
+                ", deadlift1rm=" + deadlift1rm +
+                ", squat1rm=" + squat1rm +
+                ", gender='" + gender + '\'' +
+                ", heightUnit='" + heightUnit + '\'' +
+                ", weightUnit='" + weightUnit + '\'' +
+                ", basicUnit='" + basicUnit + '\'' +
+                '}';
     }
 }

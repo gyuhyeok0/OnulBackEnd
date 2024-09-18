@@ -1,9 +1,19 @@
 package onul.restapi.onboarding.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import onul.restapi.member.entity.Members;
 
 @Entity
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "onboarding_info")
 public class OnboardingEntity {
 
@@ -12,96 +22,39 @@ public class OnboardingEntity {
     @Column(name = "onboarding_id")
     private Long onboardingId;
 
-    // Members 테이블과의 관계 설정 (외래키)
+    // Members 테이블과의 관계 설정 (외래키) - memberId를 String으로 변경
     @OneToOne
     @JoinColumn(name = "member_id", referencedColumnName = "member_id")
     private Members member;
 
     // 신체 정보
     @Column(name = "height")
-    private Double height;
+    private double height;  // cm 또는 feet -> cm, 소수점 1자리까지 저장
+
+    @Column(name = "height_unit")  // 키의 단위
+    private String heightUnit;      // cm 또는 feet
 
     @Column(name = "weight")
-    private Double weight;
+    private double weight;  // kg 또는 lbs -> kg, 소수점 2자리까지 저장
 
+    @Column(name = "weight_unit")   // 몸무게의 단위
+    private String weightUnit;      // kg 또는 lbs
 
-    // 운동 기록 (1RM)
+    // 운동 기록 (1rm)
     @Column(name = "bench_press_1rm")
-    private Double benchPress1RM;
+    private int benchPress1rm;
 
     @Column(name = "squat_1rm")
-    private Double squat1RM;
+    private int squat1rm;
 
     @Column(name = "deadlift_1rm")
-    private Double deadlift1RM;
+    private int deadlift1rm;
 
+    // 추가 필드: 성별
+    @Column(name = "gender")
+    private String gender;  // 남자, 여자, 기타
 
-    public OnboardingEntity() {
-    }
-
-    public OnboardingEntity(Long onboardingId, Members member, Double height, Double weight, Double benchPress1RM, Double squat1RM, Double deadlift1RM) {
-        this.onboardingId = onboardingId;
-        this.member = member;
-        this.height = height;
-        this.weight = weight;
-        this.benchPress1RM = benchPress1RM;
-        this.squat1RM = squat1RM;
-        this.deadlift1RM = deadlift1RM;
-    }
-
-    public Long getOnboardingId() {
-        return onboardingId;
-    }
-
-    public void setOnboardingId(Long onboardingId) {
-        this.onboardingId = onboardingId;
-    }
-
-    public Members getMember() {
-        return member;
-    }
-
-    public void setMember(Members member) {
-        this.member = member;
-    }
-
-    public Double getHeight() {
-        return height;
-    }
-
-    public void setHeight(Double height) {
-        this.height = height;
-    }
-
-    public Double getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
-
-    public Double getBenchPress1RM() {
-        return benchPress1RM;
-    }
-
-    public void setBenchPress1RM(Double benchPress1RM) {
-        this.benchPress1RM = benchPress1RM;
-    }
-
-    public Double getSquat1RM() {
-        return squat1RM;
-    }
-
-    public void setSquat1RM(Double squat1RM) {
-        this.squat1RM = squat1RM;
-    }
-
-    public Double getDeadlift1RM() {
-        return deadlift1RM;
-    }
-
-    public void setDeadlift1RM(Double deadlift1RM) {
-        this.deadlift1RM = deadlift1RM;
-    }
+    // 추가 필드: 기본 단위 (몸무게 단위)
+    @Column(name = "basic_unit")
+    private String basicUnit;  // kg 또는 lbs
 }
