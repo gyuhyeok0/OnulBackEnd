@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class SignupService {
@@ -32,7 +33,6 @@ public class SignupService {
 
             // 핸드폰 번호 해시화
             String hashedPhoneNumber = hashPhoneNumber(memberPhoneNumber);
-            System.out.println(hashedPhoneNumber);
 
             // 사용자 정보 저장 (핸드폰 번호 추가)
             saveUser(memberId, hashedPassword, memberCountryCode, hashedPhoneNumber);
@@ -58,6 +58,9 @@ public class SignupService {
 
     // 해시 함수 수정
     public String hashPhoneNumber(String phoneNumber) {
+
+        System.out.println("회원가입 시 해쉬코드: " + phoneNumber);
+
         String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber); // 전화번호 정규화
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -101,4 +104,35 @@ public class SignupService {
     public boolean isMemberIdDuplicate(String memberId) {
         return memberRepository.existsByMemberId(memberId);  // DB에 해당 memberId가 있는지 확인
     }
+
+
+    // 비밀번호 재설정
+    public boolean updatePassword(String memberId, String memberPassword) {
+        // 사용자 ID로 해당 사용자를 찾습니다.
+        Optional<Members> memberOpt = Optional.ofNullable(memberRepository.findByMemberId(memberId));
+
+        // 사용자가 존재하면
+        if (memberOpt.isPresent()) {
+            Members member = memberOpt.get();
+
+            // 비밀번호 암호화 (PasswordEncoder를 사용하여 비밀번호를 암호화합니다.)
+            String encodedPassword = hashPassword(memberPassword);
+
+            // 사용자 객체의 비밀번호를 업데이트합니다.
+            member.setMemberPassword(encodedPassword);
+
+            // 변경된 사용자 정보를 저장합니다.
+            memberRepository.save(member);
+
+            // 비밀번호가 성공적으로 업데이트되었으므로 true 반환
+            return true;
+        }
+
+        // 사용자가 존재하지 않으면 false 반환
+        return false;
+    }
+
+
+
+
 }

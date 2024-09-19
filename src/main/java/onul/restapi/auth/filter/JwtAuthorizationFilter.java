@@ -41,6 +41,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 "/signup/(.*)",
                 "/privacy-policy/(.*)",
                 "/sms/(.*)",
+
                 "/members/(.*)",
                 "/members/employee/soft-delete",
                 "/api/v1/products/\\d+",

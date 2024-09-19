@@ -48,13 +48,13 @@ public class SmsService {
     }
 
     // 인증코드 전송
-    public SmsResponse sendSms(String phoneNumber) {
+    public SmsResponse sendSms(String phoneNumber, boolean skipPhoneNumberCheck) {
+
         String hashedPhoneNumber = hashPhoneNumber(phoneNumber); // 전화번호 해시화
         long currentTime = System.currentTimeMillis();
 
-        // 전화번호 등록 여부 확인
-        if (isPhoneNumberRegistered(hashedPhoneNumber)) {
-//            System.out.println("이미 등록된 전화번호입니다.");
+        // 전화번호 등록 여부 확인을 생략할지 여부를 확인
+        if (!skipPhoneNumberCheck && isPhoneNumberRegistered(hashedPhoneNumber)) {
             return new SmsResponse("alreadyPhoneNumber");  // 상태만 반환
         }
 
@@ -88,6 +88,8 @@ public class SmsService {
                 if (codeEntity.getRequestCount() >= REQUEST_LIMIT) {
                     return new SmsResponse("LIMIT_EXCEEDED"); // 요청 제한 초과
                 } else {
+                    System.out.println("1");
+
                     // 요청 횟수 증가 및 시간 갱신
                     codeEntity.setRequestCount(codeEntity.getRequestCount() + 1);
                     codeEntity.setLastRequestTime(currentTime); // 마지막 요청 시간 갱신
@@ -99,6 +101,14 @@ public class SmsService {
                 codeEntity.setLastRequestTime(currentTime); // 마지막 요청 시간 갱신
                 codeRepository.save(codeEntity);
             }
+
+            System.out.println("5");
+            // 새로운 인증 코드를 생성하여 업데이트
+            String newVerificationCode = generateVerificationCode();
+            codeEntity.setCode(newVerificationCode); // 새로운 인증 코드 설정
+            codeEntity.setExpiryTime(currentTime + TimeUnit.MINUTES.toMillis(5)); // 인증 코드 유효 시간 갱신
+            codeRepository.save(codeEntity); // 저장
+
         } else {
             // 처음 요청일 경우, 새로운 인증 코드 생성 및 저장
             String verificationCode = generateVerificationCode();
@@ -125,6 +135,7 @@ public class SmsService {
 
 
 
+
     // 전화번호가 이미 등록된 회원인지 확인
     private boolean isPhoneNumberRegistered(String hashedPhoneNumber) {
         return memberRepository.existsByMemberPhoneNumber(hashedPhoneNumber);
@@ -133,8 +144,8 @@ public class SmsService {
 
 
     public String hashPhoneNumber(String phoneNumber) {
-        String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber); // 전화번호 정규화
 
+        String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber); // 전화번호 정규화
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hash = md.digest(normalizedPhoneNumber.getBytes());
