@@ -11,7 +11,10 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "tbl_members")
+@Table(name = "tbl_members", indexes = {
+        @Index(name = "idx_member_phone_number", columnList = "member_phone_number"),
+        @Index(name = "idx_member_id", columnList = "member_id")  // 추가된 인덱스
+})
 @ToString
 public class Members {
 

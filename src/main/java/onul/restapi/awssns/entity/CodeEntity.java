@@ -3,7 +3,9 @@ package onul.restapi.awssns.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "verification_codes")
+@Table(name = "verification_codes", indexes = {
+        @Index(name = "idx_phone_number", columnList = "phone_number") // 인덱스 추가
+})
 public class CodeEntity {
 
     @Id

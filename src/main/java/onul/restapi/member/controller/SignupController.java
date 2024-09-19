@@ -101,4 +101,41 @@ public class SignupController {
         }
     }
 
+
+
+    @PostMapping("/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody SignupRequestDTO request) {
+
+        // 비밀번호 유효성 검사 정규식
+        String passwordRegex = "^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]{6,20}$";
+
+        // 요청 데이터 유효성 검사
+        if (request.getMemberId() == null || request.getMemberPassword() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorResponse("모든 필드를 입력해 주세요."));
+        }
+
+        // 서버에서 비밀번호 유효성 검사
+        if (!request.getMemberPassword().matches(passwordRegex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorResponse("비밀번호는 영문자와 숫자가 포함된 6~20자리여야 합니다."));
+        }
+
+        // 비밀번호 변경 서비스 호출
+        boolean isUpdated = signupService.updatePassword(request.getMemberId(), request.getMemberPassword());
+
+        if (isUpdated) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new SuccessResponse("비밀번호가 성공적으로 변경되었습니다."));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorResponse("비밀번호 변경 중 오류가 발생했습니다."));
+        }
+    }
+
+
 }
