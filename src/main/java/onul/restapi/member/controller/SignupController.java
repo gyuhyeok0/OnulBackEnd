@@ -4,7 +4,11 @@ import onul.restapi.common.ErrorResponse;
 import onul.restapi.common.SuccessResponse;
 import onul.restapi.member.dto.MemberDTO;
 import onul.restapi.member.dto.SignupRequestDTO;
+import onul.restapi.member.dto.TokenDTO;
+import onul.restapi.member.entity.Members;
+import onul.restapi.member.service.RedisService;
 import onul.restapi.member.service.SignupService;
+import onul.restapi.util.TokenUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class SignupController {
 
     private final SignupService signupService;
-    private final MemberDTO memberDTO;
+    private final RedisService redisService;
 
-    public SignupController(SignupService signupService) {
+    public SignupController(SignupService signupService, RedisService redisService) {
         this.signupService = signupService;
-        this.memberDTO = new MemberDTO();
+        this.redisService = redisService;
     }
-
 
     @PostMapping ("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequestDTO request) {
@@ -102,7 +105,7 @@ public class SignupController {
     }
 
 
-
+    // 비밀번호 재설정
     @PostMapping("/reset")
     public ResponseEntity<?> resetPassword(@RequestBody SignupRequestDTO request) {
 
@@ -113,29 +116,34 @@ public class SignupController {
         if (request.getMemberId() == null || request.getMemberPassword() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorResponse("모든 필드를 입력해 주세요."));
+                    .body(new StateResponse("INVALID_REQUEST")); // 상태 반환
         }
 
         // 서버에서 비밀번호 유효성 검사
         if (!request.getMemberPassword().matches(passwordRegex)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorResponse("비밀번호는 영문자와 숫자가 포함된 6~20자리여야 합니다."));
+                    .body(new StateResponse("INVALID_PASSWORD")); // 상태 반환
         }
 
         // 비밀번호 변경 서비스 호출
         boolean isUpdated = signupService.updatePassword(request.getMemberId(), request.getMemberPassword());
 
         if (isUpdated) {
+            // 사용자의 모든 Refresh Token을 삭제 또는 무효화 (Redis나 DB 사용)
+            redisService.deleteRefreshToken(request.getMemberId());
+
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new SuccessResponse("비밀번호가 성공적으로 변경되었습니다."));
+                    .contentType(MediaType.APPLICATION_JSON)  // JSON 응답 설정
+                    .body(new StateResponse("SUCCESS")); // 상태 반환
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorResponse("비밀번호 변경 중 오류가 발생했습니다."));
+                    .contentType(MediaType.APPLICATION_JSON)  // JSON 응답 설정
+                    .body(new StateResponse("ERROR")); // 상태 반환
         }
     }
+
+
 
 
 }

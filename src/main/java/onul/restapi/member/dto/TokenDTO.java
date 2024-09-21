@@ -18,6 +18,7 @@ public class TokenDTO {
     private String memberId;
     private String memberName;
     private String accessToken;
+    private String refreshToken;
     private Long accessTokenExpiresIn;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

@@ -5,6 +5,7 @@ import onul.restapi.auth.filter.JwtAuthorizationFilter;
 import onul.restapi.auth.handler.CustomAuthFailUserHandler;
 import onul.restapi.auth.handler.CustomAuthSuccessHandler;
 import onul.restapi.auth.handler.CustomAuthenticationProvider;
+import onul.restapi.util.TokenUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,12 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
+    private final TokenUtils tokenUtils;
+
+    public WebSecurityConfig(TokenUtils tokenUtils) {
+        this.tokenUtils = tokenUtils;
+    }
 
     // 정적 자원에 대한 인증된 사용자의 접근 가능 설정
     @Bean
@@ -73,14 +80,14 @@ public class WebSecurityConfig {
         return new CustomAuthFailUserHandler();
     }
 
+    // CustomAuthSuccessHandler를 TokenUtils와 함께 주입
     @Bean
-    public CustomAuthSuccessHandler customAuthSuccessHandler(){
-        return new CustomAuthSuccessHandler();
+    public CustomAuthSuccessHandler customAuthSuccessHandler() {
+        return new CustomAuthSuccessHandler(tokenUtils);
     }
 
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-
-        return new JwtAuthorizationFilter(authenticationManager());
+        return new JwtAuthorizationFilter(authenticationManager(), tokenUtils); // TokenUtils를 추가로 전달
     }
 
 

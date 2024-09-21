@@ -20,6 +20,7 @@ public class OnboardingController {
 
     @GetMapping("/check")
     public ResponseEntity<Boolean> checkOnboardingStatus(@RequestParam String memberId) {
+
         boolean needsOnboarding = onboardingService.checkIfNeedsOnboarding(memberId);
 
         System.out.println(needsOnboarding);
@@ -29,8 +30,6 @@ public class OnboardingController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerOnboarding(@RequestBody OnboardingDTO onboardingRequest) {
-        System.out.println("되니?");
-        System.out.println(onboardingRequest);
 
         // 유효성 검사
         if (onboardingRequest.getMemberId() == null || onboardingRequest.getMemberId().isEmpty()) {
