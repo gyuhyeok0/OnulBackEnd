@@ -27,21 +27,24 @@ import java.util.regex.Pattern;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    private final TokenUtils tokenUtils;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, TokenUtils tokenUtils) {
         super(authenticationManager);
+        this.tokenUtils = tokenUtils; // TokenUtils 주입
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        // 권한이 없더라도 접근 가능한 URL
         List<String> roleLeessList = Arrays.asList(
-                "/privacy-policy.html",
+                "/auth/refresh",
 
+                "/privacy-policy.html",
                 "/signup/(.*)",
                 "/privacy-policy/(.*)",
                 "/sms/(.*)",
-
+                "/inquiry/(.*)",
                 "/members/(.*)",
                 "/members/employee/soft-delete",
                 "/api/v1/products/\\d+",
@@ -57,7 +60,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 "/api/v1/reviews/(\\d+)?offset=\\d+"
         );
 
-        // URL 패턴과 일치하는지 확인
         if (roleLeessList.stream().anyMatch(pattern -> Pattern.matches(pattern, request.getRequestURI()))) {
             chain.doFilter(request, response);
             return;
@@ -67,14 +69,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         try {
             if (header != null && !header.equalsIgnoreCase("")) {
-                String token = TokenUtils.splitHeader(header);
+                // TokenUtils를 인스턴스 메서드로 호출
+                String token = tokenUtils.splitHeader(header);
 
-                if (TokenUtils.isValidToken(token)) {
-                    Claims claims = TokenUtils.getClaimsFromToken(token);
+                if (tokenUtils.isValidToken(token)) {
+
+                    Claims claims = tokenUtils.getClaimsFromToken(token);
 
                     MemberDTO authentication = new MemberDTO();
                     authentication.setMemberId(claims.get("memberId").toString());
-//                    System.out.println("claims ==================== " + claims.get("memberRole"));
 
                     AbstractAuthenticationToken authenticationToken = UsernamePasswordAuthenticationToken.authenticated(authentication, token, authentication.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetails(request));
@@ -90,8 +93,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (Exception e) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json");
+
+            // 상태 코드 설정 (예: 401 Unauthorized)
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
             PrintWriter printWriter = response.getWriter();
-            JSONObject jsonObject = jsonresponseWrapper(e);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("status", HttpServletResponse.SC_UNAUTHORIZED); // 상태 코드만 포함
+
             printWriter.print(jsonObject);
             printWriter.flush();
             printWriter.close();

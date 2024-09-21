@@ -2,7 +2,8 @@ package onul.restapi.auth.config;
 
 import onul.restapi.auth.filter.HeaderFilter;
 import onul.restapi.auth.interceptor.JwtTokenInterceptor;
-import org.springframework.beans.factory.annotation.Value;
+import onul.restapi.util.TokenUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,25 +15,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
+    private final TokenUtils tokenUtils;
 
-
+    @Autowired
+    public WebConfig(TokenUtils tokenUtils) {
+        this.tokenUtils = tokenUtils;
+    }
 
     @Bean
-    public FilterRegistrationBean<HeaderFilter> getFilterRegistrationBean(){
+    public FilterRegistrationBean<HeaderFilter> getFilterRegistrationBean() {
         FilterRegistrationBean<HeaderFilter> registrationBean = new FilterRegistrationBean<>(createHeaderFilter());
         registrationBean.setOrder(Integer.MIN_VALUE);
         registrationBean.addUrlPatterns("/*");
-        return  registrationBean;
-
+        return registrationBean;
     }
 
     @Bean
-    public HeaderFilter createHeaderFilter(){
-        return  new HeaderFilter();
+    public HeaderFilter createHeaderFilter() {
+        return new HeaderFilter();
     }
 
     @Bean
-    public JwtTokenInterceptor jwtTokenInterceptor(){
-        return new JwtTokenInterceptor();
+    public JwtTokenInterceptor jwtTokenInterceptor() {
+        return new JwtTokenInterceptor(tokenUtils);  // TokenUtils 주입
     }
 }

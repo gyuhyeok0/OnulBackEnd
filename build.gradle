@@ -55,6 +55,9 @@ dependencies {
     implementation 'software.amazon.awssdk:sns:2.16.27'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 }
 
 tasks.named('test') {
