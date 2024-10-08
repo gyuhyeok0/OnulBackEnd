@@ -4,13 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder // 빌더 패턴 추가
 @Table(name = "tbl_members", indexes = {
         @Index(name = "idx_member_phone_number", columnList = "member_phone_number"),
         @Index(name = "idx_member_id", columnList = "member_id")  // 추가된 인덱스
@@ -24,7 +24,6 @@ public class Members {
 
     @Column(name = "member_password")
     private String memberPassword;
-
 
     @Column(name = "member_phone_number")
     private String memberPhoneNumber;
@@ -51,13 +50,4 @@ public class Members {
         this.memberStatus = status;
         return this;
     }
-
-    // Builder 메서드 수정
-    public Members builder() {
-        return new Members(this.memberId, this.memberPassword,
-                this.memberPhoneNumber, this.memberCountryCode, this.memberUserConsent,
-                this.memberSignupDate, this.memberStatus);
-    }
-
-
 }
