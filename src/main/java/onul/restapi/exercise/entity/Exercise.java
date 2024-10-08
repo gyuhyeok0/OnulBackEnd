@@ -7,10 +7,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "tbl_exercises", indexes = {
-        @Index(name = "idx_main_muscle_group", columnList = "main_muscle_group")
+        @Index(name = "idx_main_muscle_group", columnList = "main_muscle_group"),
+        @Index(name = "idx_exercise_id", columnList = "id") // id 필드에 인덱스 추가
+
 })
 @Getter
-@NoArgsConstructor // 기본 생성자를 Lombok으로 처리
+@Builder
 public class Exercise {
 
     @Id
@@ -29,12 +31,41 @@ public class Exercise {
     @Column(name = "popularity_group", nullable = false)
     private Boolean popularityGroup;
 
-    // Lombok의 @Builder 어노테이션을 사용해 매개변수가 있는 생성자 대체
-    @Builder
-    public Exercise(String exerciseName, String mainMuscleGroup, String detailMuscleGroup, Boolean popularityGroup) {
+    @Column(name = "is_liked", nullable = false)
+    private Boolean isLiked = false; // 기본값 false
+
+    @Column(name = "exercise_type") // 운동 종류를 나타내는 필드 추가
+    private String exerciseType;
+
+    public Exercise() {
+    }
+
+    public Exercise(Long id, String exerciseName, String mainMuscleGroup, String detailMuscleGroup, Boolean popularityGroup, Boolean isLiked, String exerciseType) {
+        this.id = id;
         this.exerciseName = exerciseName;
         this.mainMuscleGroup = mainMuscleGroup;
         this.detailMuscleGroup = detailMuscleGroup;
         this.popularityGroup = popularityGroup;
+        this.isLiked = isLiked;
+        this.exerciseType = exerciseType;
+    }
+
+
+    // id를 받는 생성자 추가
+    public Exercise(Long id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Exercise{" +
+                "id=" + id +
+                ", exerciseName='" + exerciseName + '\'' +
+                ", mainMuscleGroup='" + mainMuscleGroup + '\'' +
+                ", detailMuscleGroup='" + detailMuscleGroup + '\'' +
+                ", popularityGroup=" + popularityGroup +
+                ", isLiked=" + isLiked +
+                ", exerciseType='" + exerciseType + '\'' +
+                '}';
     }
 }
