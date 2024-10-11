@@ -12,7 +12,12 @@ import java.util.List;
 @Getter
 @Builder
 @NoArgsConstructor
-@Table(name = "my_exercises")
+@Table(
+        name = "my_exercises",
+        indexes = {
+                @Index(name = "idx_muscle_group", columnList = "muscleGroup")
+        }
+)
 public class MyExercise {
 
     @Id
