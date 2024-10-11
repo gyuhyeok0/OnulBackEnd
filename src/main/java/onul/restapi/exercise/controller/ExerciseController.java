@@ -21,6 +21,7 @@ public class ExerciseController {
         this.exerciseService = exerciseService;
     }
 
+    // 운동등록
     // 운동 목록 조회 (GET /exercises/selectList)
     @GetMapping(value = "/selectList", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Exercise>> getExerciseList() {
@@ -32,6 +33,7 @@ public class ExerciseController {
                 .body(exercises);
     }
 
+    // 운동등록
     // 좋아요 상태
     @PostMapping("/{exerciseId}/isLiked")
     public ResponseEntity<String> toggleLike(@PathVariable Long exerciseId, @RequestBody ExerciseDto request) {

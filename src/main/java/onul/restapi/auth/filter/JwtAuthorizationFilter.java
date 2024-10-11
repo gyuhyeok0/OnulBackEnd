@@ -39,6 +39,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         List<String> roleLeessList = Arrays.asList(
                 "/auth/refresh",
+                "/schedule/(.*)",
+
 
                 "/privacy-policy.html",
                 "/signup/(.*)",
