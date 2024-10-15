@@ -7,11 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/schedule")
@@ -67,4 +65,33 @@ public class ScheduleController {
                     .body(new StateResponse("FAILURE: " + e.getMessage()));
         }
     }
+
+    // 특정 회원의 전체 스케줄 조회 엔드포인트
+    @GetMapping("/selectSchedule")
+    public ResponseEntity<?> selectSchedule(@RequestParam String memberId) {
+
+
+        if (memberId == null || memberId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new StateResponse("FAILURE: 잘못된 요청입니다."));
+        }
+
+        try {
+            List<ScheduleDTO> schedules = scheduleService.getAllSchedulesByMemberId(memberId); // memberId로 전체 스케줄 조회
+            if (schedules.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new StateResponse("NO SCHEDULE FOUND"));
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(schedules);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new StateResponse("FAILURE: " + e.getMessage()));
+        }
+    }
+
 }
