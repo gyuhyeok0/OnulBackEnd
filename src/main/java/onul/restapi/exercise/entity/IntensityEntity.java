@@ -9,9 +9,15 @@ import onul.restapi.member.entity.Members;
 import java.util.Date;
 
 @Entity
-@Table(name = "tbl_intensity", indexes = {
-        @Index(name = "idx_created_at", columnList = "created_at") // created_at에 인덱스 추가
-})@Getter
+@Table(name = "tbl_intensity",
+        indexes = {
+                @Index(name = "idx_created_at", columnList = "created_at") // created_at에 인덱스 추가
+        },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "unique_member_created_at", columnNames = {"member_id", "created_at"}) // 유니크 제약 조건 추가
+        }
+)
+@Getter
 @NoArgsConstructor
 public class IntensityEntity {
 
@@ -27,7 +33,7 @@ public class IntensityEntity {
     private String intensity;
 
     @Temporal(TemporalType.DATE) // 날짜만 저장하도록 설정
-    @Column(name = "created_at") // 컬럼 이름 설정
+    @Column(name = "created_at", nullable = false) // 컬럼 이름 및 null 허용 안 함 설정
     private Date createdAt;
 
     @Builder

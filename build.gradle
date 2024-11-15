@@ -33,6 +33,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
+//    runtimeOnly 'com.mysql:mysql-connector-java:8.0.33' // 최신 버전으로 명시
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
