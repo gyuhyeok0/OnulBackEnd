@@ -1,6 +1,8 @@
 package onul.restapi.exercise.service;
 
+import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
+import onul.restapi.exercise.dto.SetDTO;
 import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.entity.ExerciseRecord;
 import onul.restapi.exercise.entity.ExerciseServiceNumber;
@@ -14,6 +16,7 @@ import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class ExerciseRecordService {
@@ -203,6 +206,57 @@ public class ExerciseRecordService {
 
         System.out.println("삭제된 운동 기록 ID: " + record.getExerciseRecordId());
     }
+
+
+
+    // 운동 기록 검색
+    public List<ExerciseRecordDTO> searchExerciseRecords(
+            Long exerciseId, String memberId, int exerciseService, LocalDate recordDate) {
+
+        // ExerciseRecord 엔티티를 검색
+        List<ExerciseRecord> exerciseRecords = exerciseRepository.findRecordsByConditions(
+                exerciseId, memberId, exerciseService, recordDate
+        );
+
+        // ExerciseRecord 엔티티를 ExerciseRecordDTO로 변환 후 반환
+        return exerciseRecords.stream()
+                .map(record -> new ExerciseRecordDTO(
+                        record.getExerciseRecordId(), // ID 필드 매핑 (getExerciseRecordId 사용)
+                        record.getMember().getMemberId(), // Member ID 매핑
+                        record.getSetNumber(), // 세트 번호 매핑
+                        new SetDTO( // SetDTO 생성
+                                record.getSet().getCompleted(), // 완료 여부
+                                record.getSet().getKg(),        // 킬로그램
+                                record.getSet().getKm(),        // 킬로미터
+                                record.getSet().getLbs(),       // 파운드
+                                record.getSet().getMi(),        // 마일
+                                record.getSet().getReps(),      // 반복 횟수
+                                record.getSet().getTime()       // 시간
+                        ),
+                        new ExerciseDto( // ExerciseDto 생성
+                                record.getExercise().getId(), // 운동 ID
+                                record.getExercise().getExerciseName(), // 운동 이름
+                                record.getExercise().getMainMuscleGroup(), // 주요 근육 그룹
+                                record.getExercise().getDetailMuscleGroup(), // 세부 근육 그룹
+                                record.getExercise().getPopularityGroup(), // 인기 그룹 여부
+                                record.getExercise().getIsLiked() // 좋아요 상태
+                        ),
+                        record.getExerciseServiceNumber().getId(), // 운동 서비스 ID 매핑
+                        record.getExerciseType().getId(), // 운동 타입 ID 매핑
+                        record.getVolume(), // 볼륨 매핑
+                        record.getWeightUnit(), // 무게 단위 매핑
+                        record.getKmUnit(), // 거리 단위 매핑
+                        record.getRecordDate(), // 기록 날짜 매핑
+                        record.getKmVolume(), // km 볼륨 매핑
+                        record.getMiVolume(), // 마일 볼륨 매핑
+                        record.getKgVolume(), // kg 볼륨 매핑
+                        record.getLbsVolume(), // lbs 볼륨 매핑
+                        record.getTimeVolume(), // 시간 매핑
+                        record.getRepsVolume() // 반복 횟수 매핑
+                ))
+                .toList();
+    }
+
 
 
 
