@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExerciseRecordService {
@@ -255,6 +256,24 @@ public class ExerciseRecordService {
                         record.getRepsVolume() // 반복 횟수 매핑
                 ))
                 .toList();
+    }
+
+    public List<LocalDate> getPreviousRecordDates(String memberId, Long exerciseId, Integer exerciseService) {
+
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
+        LocalDate threeMonthsAgo = currentDate.minusMonths(3); // 3달 전 날짜
+
+        // 최근 3달 데이터 조회
+        List<LocalDate> recentDates = exerciseRecordRepository.findRecentRecordDates(
+                memberId, exerciseId, exerciseService, threeMonthsAgo);
+
+        // 최근 3달 데이터가 없는 경우 전체 데이터 반환
+        if (recentDates.isEmpty()) {
+            return exerciseRecordRepository.findDistinctRecordDatesByMemberIdAndExerciseIdAndServiceNumber(
+                    memberId, exerciseId, exerciseService);
+        }
+
+        return recentDates;
     }
 
 
