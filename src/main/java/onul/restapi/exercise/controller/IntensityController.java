@@ -24,6 +24,7 @@ public class IntensityController {
     @PostMapping("/intensity")
     public ResponseEntity<StateResponse> saveIntensity(@RequestBody IntensityDTO intensityDTO) {
         try {
+            System.out.println(intensityDTO.getIntensity());
             intensityService.saveIntensity(intensityDTO.getMemberId(), intensityDTO.getIntensity());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

@@ -32,6 +32,7 @@ public class SubmitExerciseController {
                     .body("{\"message\":\"운동 기록이 성공적으로 저장되었습니다.\"}");
         } catch (Exception e) {
             // 예외 발생 시 JSON 형식으로 에러 메시지 반환
+
             return ResponseEntity.status(500)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body("{\"message\":\"운동 기록 저장 중 오류가 발생했습니다.\"}");

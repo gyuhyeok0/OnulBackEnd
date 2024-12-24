@@ -1,19 +1,14 @@
 package onul.restapi.exercise.controller;
 
-import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
 import onul.restapi.exercise.dto.ExerciseRecordSearchDTO;
-import onul.restapi.exercise.entity.Exercise;
+import onul.restapi.exercise.dto.RecordDateRequest;
 import onul.restapi.exercise.service.ExerciseRecordService;
-import onul.restapi.exercise.service.ExerciseService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -50,6 +45,36 @@ public class ExerciseRecordController {
     }
 
 
+    @PostMapping("/selectPreviousRecordDate")
+    public ResponseEntity<List<String>> getPreviousRecordDates(
+            @RequestBody RecordDateRequest request
+    ) {
+        try {
+            // Service에서 운동 기록 날짜 목록 가져오기
+            List<LocalDate> recordDates = exerciseRecordService.getPreviousRecordDates(
+                    request.getMemberId(),
+                    request.getExerciseId(),
+                    request.getExerciseService()
+            );
 
+            if (recordDates.isEmpty()) {
+                return ResponseEntity.noContent().build(); // 날짜가 없는 경우 204 No Content 반환
+            }
+
+            // LocalDate 리스트를 String 리스트로 변환
+            List<String> recordDateStrings = recordDates.stream()
+                    .map(LocalDate::toString)
+                    .toList();
+
+            // JSON 형식으로 응답 반환
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON) // Content-Type 설정
+                    .body(recordDateStrings);
+
+        } catch (Exception e) {
+            // 예외 발생 시 500 Internal Server Error 반환
+            return ResponseEntity.status(500).build();
+        }
+    }
 
 }
