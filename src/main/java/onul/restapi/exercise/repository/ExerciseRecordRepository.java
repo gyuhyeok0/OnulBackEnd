@@ -62,5 +62,31 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
 
 
 
+    @Query("SELECT MAX(er.recordDate) FROM ExerciseRecord er " +
+            "JOIN er.member m " +
+            "JOIN er.exercise e " +
+            "JOIN er.exerciseServiceNumber esn " +
+            "WHERE m.memberId = :memberId " +
+            "AND e.id = :exerciseId " +
+            "AND esn.id = :exerciseService " +
+            "AND er.recordDate < CURRENT_DATE") // 오늘 이전의 날짜만 조회
+    LocalDate findMostRecentRecordDateExcludingToday(
+            @Param("memberId") String memberId,
+            @Param("exerciseId") Long exerciseId,
+            @Param("exerciseService") Integer exerciseService
+    );
+
+
+    @Query("SELECT r FROM ExerciseRecord r " +
+            "WHERE r.exercise.id IN :exerciseIds " +
+            "AND r.member.memberId = :memberId " +
+            "AND r.exerciseServiceNumber.id = :exerciseService " +
+            "AND r.recordDate = :recordDate")
+    List<ExerciseRecord> findRecordsByExerciseIdsAndDate(
+            @Param("exerciseIds") List<Long> exerciseIds,
+            @Param("memberId") String memberId,
+            @Param("exerciseService") int exerciseService,
+            @Param("recordDate") LocalDate recordDate
+    );
 
 }

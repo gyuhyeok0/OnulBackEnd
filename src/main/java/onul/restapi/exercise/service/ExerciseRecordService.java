@@ -2,6 +2,7 @@ package onul.restapi.exercise.service;
 
 import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
+import onul.restapi.exercise.dto.ExerciseVolumeRequest;
 import onul.restapi.exercise.dto.SetDTO;
 import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.entity.ExerciseRecord;
@@ -16,6 +17,7 @@ import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -276,6 +278,93 @@ public class ExerciseRecordService {
         return recentDates;
     }
 
+
+//    public LocalDate getMostPreviousRecordDates(String memberId, Long exerciseId, Integer exerciseService) {
+//        return exerciseRecordRepository.findMostRecentRecordDateByMemberIdAndExerciseIdAndServiceNumber(
+//                memberId, exerciseId, exerciseService);
+//    }
+
+
+
+    public List<ExerciseRecordDTO> searchVolumeRecords(ExerciseVolumeRequest request) {
+        System.out.println("요청 데이터: " + request);
+
+        // 요청에서 필요한 필드 추출
+        String memberId = request.getMemberId();
+        List<Long> exerciseIds = request.getExerciseIds();
+        Integer exerciseService = request.getExerciseServiceNumber();
+
+        // 최종 결과를 저장할 리스트
+        List<ExerciseRecordDTO> result = new ArrayList<>();
+
+        // 각 exerciseId에 대해 처리
+        for (Long exerciseId : exerciseIds) {
+            // 1. 각 exerciseId의 최근 날짜를 조회
+            LocalDate mostRecentDate = exerciseRecordRepository.findMostRecentRecordDateExcludingToday(
+                    memberId,
+                    exerciseId,
+                    exerciseService
+            );
+
+            if (mostRecentDate == null) {
+                System.out.println("exerciseId: " + exerciseId + "에 대한 오늘 제외 최근 날짜가 없습니다.");
+                continue; // 데이터가 없으면 다음 exerciseId로 넘어감
+            }
+
+            System.out.println("exerciseId: " + exerciseId + "에 대한 가장 최근 날짜: " + mostRecentDate);
+
+            // 2. 해당 날짜에 대한 데이터 조회
+            List<ExerciseRecord> exerciseRecords = exerciseRecordRepository.findRecordsByExerciseIdsAndDate(
+                    List.of(exerciseId), // 단일 exerciseId를 리스트로 변환
+                    memberId,
+                    exerciseService,
+                    mostRecentDate
+            );
+
+            // 3. 조회된 데이터를 DTO로 변환하여 결과 리스트에 추가
+            result.addAll(
+                    exerciseRecords.stream()
+                            .map(record -> new ExerciseRecordDTO(
+                                    record.getExerciseRecordId(),
+                                    record.getMember().getMemberId(),
+                                    record.getSetNumber(),
+                                    new SetDTO(
+                                            record.getSet().getCompleted(),
+                                            record.getSet().getKg(),
+                                            record.getSet().getKm(),
+                                            record.getSet().getLbs(),
+                                            record.getSet().getMi(),
+                                            record.getSet().getReps(),
+                                            record.getSet().getTime()
+                                    ),
+                                    new ExerciseDto(
+                                            record.getExercise().getId(),
+                                            record.getExercise().getExerciseName(),
+                                            record.getExercise().getMainMuscleGroup(),
+                                            record.getExercise().getDetailMuscleGroup(),
+                                            record.getExercise().getPopularityGroup(),
+                                            record.getExercise().getIsLiked()
+                                    ),
+                                    record.getExerciseServiceNumber().getId(),
+                                    record.getExerciseType().getId(),
+                                    record.getVolume(),
+                                    record.getWeightUnit(),
+                                    record.getKmUnit(),
+                                    record.getRecordDate(),
+                                    record.getKmVolume(),
+                                    record.getMiVolume(),
+                                    record.getKgVolume(),
+                                    record.getLbsVolume(),
+                                    record.getTimeVolume(),
+                                    record.getRepsVolume()
+                            ))
+                            .toList()
+            );
+        }
+
+        // 최종 결과 리스트 반환
+        return result;
+    }
 
 
 
