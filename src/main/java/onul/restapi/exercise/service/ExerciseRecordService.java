@@ -1,5 +1,8 @@
 package onul.restapi.exercise.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
 import onul.restapi.exercise.dto.ExerciseVolumeRequest;
@@ -30,6 +33,9 @@ public class ExerciseRecordService {
     private final ExerciseServiceRepository exerciseServiceRepository;
     private final ExerciseRepository exerciseRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public ExerciseRecordService(ExerciseRecordRepository exerciseRecordRepository, MemberRepository memberRepository, ExerciseTypeRepository exerciseTypeRepository, ExerciseServiceRepository exerciseServiceRepository, ExerciseRepository exerciseRepository) {
         this.exerciseRecordRepository = exerciseRecordRepository;
         this.memberRepository = memberRepository;
@@ -38,6 +44,7 @@ public class ExerciseRecordService {
         this.exerciseRepository = exerciseRepository;
     }
 
+    @Transactional
     public void saveExerciseRecord(ExerciseRecordDTO exerciseRecord) {
         // 원본 volume 값을 String 타입으로 가져오기
         String volumeString = exerciseRecord.getVolume();
@@ -144,6 +151,10 @@ public class ExerciseRecordService {
                     .build();
 
             exerciseRecordRepository.save(updatedRecord);
+
+            // 세션의 변경 사항을 DB에 즉시 반영
+            entityManager.flush();  // flush() 호출
+
             System.out.println("기존 운동 기록이 업데이트되었습니다: " + updatedRecord.getExerciseRecordId());
         } else {
             // 새로운 데이터 생성 (빌더 사용)

@@ -21,7 +21,6 @@ public class SubmitExerciseController {
     public ResponseEntity<?> registExerciseRecord(@RequestBody ExerciseRecordDTO exerciseRecordDTO) {
 
 
-
         try {
             // ExerciseRecordService로 전달하여 저장 처리
             exerciseRecordService.saveExerciseRecord(exerciseRecordDTO);
