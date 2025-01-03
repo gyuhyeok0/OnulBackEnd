@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import onul.restapi.member.entity.Members;
 
 import java.util.Date;
@@ -19,6 +20,7 @@ import java.util.Date;
 )
 @Getter
 @NoArgsConstructor
+@ToString
 public class IntensityEntity {
 
     @Id

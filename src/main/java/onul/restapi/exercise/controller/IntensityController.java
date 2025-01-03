@@ -21,20 +21,35 @@ public class IntensityController {
         this.intensityService = intensityService;
     }
 
+
     @PostMapping("/intensity")
-    public ResponseEntity<StateResponse> saveIntensity(@RequestBody IntensityDTO intensityDTO) {
+    public ResponseEntity<?> saveIntensity(@RequestBody IntensityDTO intensityDTO) {
         try {
+            // DTO에서 값 확인
             System.out.println(intensityDTO.getIntensity());
-            intensityService.saveIntensity(intensityDTO.getMemberId(), intensityDTO.getIntensity());
+
+            // 서비스 호출 및 저장된 데이터 반환
+            IntensityDTO savedIntensity = intensityService.saveIntensity(intensityDTO.getMemberId(), intensityDTO.getIntensity());
+
+            System.out.println(savedIntensity);
+            // 저장된 데이터를 반환
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new StateResponse("SUCCESS"));
+                    .body(savedIntensity);
+
+        } catch (IllegalArgumentException e) {
+            // 잘못된 입력 처리
+            return ResponseEntity.badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new StateResponse("INVALID_MEMBER_ID"));
         } catch (Exception e) {
+            // 기타 에러 처리
             return ResponseEntity.status(500)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new StateResponse("ERROR"));
         }
     }
+
 
 
 }
