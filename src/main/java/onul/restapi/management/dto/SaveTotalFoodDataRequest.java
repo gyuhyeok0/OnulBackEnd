@@ -1,6 +1,7 @@
 package onul.restapi.management.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 public class SaveTotalFoodDataRequest {
@@ -8,15 +9,18 @@ public class SaveTotalFoodDataRequest {
     private String mealType;
     private LocalDate date; // LocalDate로 변경
     private Map<String, Double> totalNutrition;
+    private List<String> recipeNames; // 레시피 이름 목록 추가
+
 
     public SaveTotalFoodDataRequest() {
     }
 
-    public SaveTotalFoodDataRequest(String memberId, String mealType, LocalDate date, Map<String, Double> totalNutrition) {
+    public SaveTotalFoodDataRequest(String memberId, String mealType, LocalDate date, Map<String, Double> totalNutrition, List<String> recipeNames) {
         this.memberId = memberId;
         this.mealType = mealType;
         this.date = date;
         this.totalNutrition = totalNutrition;
+        this.recipeNames = recipeNames;
     }
 
     public String getMemberId() {
@@ -51,6 +55,14 @@ public class SaveTotalFoodDataRequest {
         this.totalNutrition = totalNutrition;
     }
 
+    public List<String> getRecipeNames() {
+        return recipeNames;
+    }
+
+    public void setRecipeNames(List<String> recipeNames) {
+        this.recipeNames = recipeNames;
+    }
+
     @Override
     public String toString() {
         return "SaveTotalFoodDataRequest{" +
@@ -58,6 +70,7 @@ public class SaveTotalFoodDataRequest {
                 ", mealType='" + mealType + '\'' +
                 ", date=" + date +
                 ", totalNutrition=" + totalNutrition +
+                ", recipeNames=" + recipeNames +
                 '}';
     }
 }

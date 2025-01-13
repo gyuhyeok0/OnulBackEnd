@@ -143,13 +143,13 @@ public class FoodService {
     }
 
 
+
     @Transactional
     public SavedFoodDataResponse saveTotalFoodData(SaveTotalFoodDataRequest request) {
         // 요청에서 전달받은 회원 ID를 사용하여 회원 정보를 조회합니다.
         Members member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
         System.out.println("Member found: " + member.getMemberId());
-
 
         // 요청에서 전달받은 날짜와 회원 ID에 해당하는 TotalFoodData를 조회합니다.
         TotalFoodData existingFoodData = totalFoodDataRepository.findByMember_memberIdAndDate(member.getMemberId(), request.getDate());
@@ -159,6 +159,7 @@ public class FoodService {
             TotalFoodData updatedFoodData = existingFoodData.toBuilder()
                     .mealType(request.getMealType())  // 식사 종류 (예: Breakfast, Lunch, Dinner)
                     .totalNutrition(request.getTotalNutrition())  // 영양 정보 (Map)
+                    .recipeNames(request.getRecipeNames())  // 레시피 이름 목록 업데이트
                     .build();
 
             // 업데이트된 데이터를 저장합니다.
@@ -169,7 +170,8 @@ public class FoodService {
                     updatedFoodData.getMember().getMemberId(),
                     updatedFoodData.getMealType(),
                     updatedFoodData.getDate(),
-                    updatedFoodData.getTotalNutrition()
+                    updatedFoodData.getTotalNutrition(),
+                    updatedFoodData.getRecipeNames()  // 레시피 이름도 반환
             );
         } else {
             // 데이터가 없으면 새로운 데이터를 생성합니다.
@@ -178,6 +180,7 @@ public class FoodService {
                     .mealType(request.getMealType())  // 식사 종류 (예: Breakfast, Lunch, Dinner)
                     .date(request.getDate())  // 날짜 (yyyy-MM-dd 형식)
                     .totalNutrition(request.getTotalNutrition())  // 영양 정보 (Map)
+                    .recipeNames(request.getRecipeNames())  // 레시피 이름 목록
                     .build();
 
             // 새 데이터를 데이터베이스에 저장합니다.
@@ -188,7 +191,8 @@ public class FoodService {
                     savedFoodData.getMember().getMemberId(),
                     savedFoodData.getMealType(),
                     savedFoodData.getDate(),
-                    savedFoodData.getTotalNutrition()
+                    savedFoodData.getTotalNutrition(),
+                    savedFoodData.getRecipeNames()  // 레시피 이름도 반환
             );
         }
     }

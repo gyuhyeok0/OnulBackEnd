@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import onul.restapi.member.entity.Members;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -38,12 +39,19 @@ public class TotalFoodData {
     @Column(name = "value")
     private Map<String, Double> totalNutrition; // 영양 정보 (예: grams, kcal, carbs, protein, fat)
 
+    @ElementCollection
+    @CollectionTable(name = "recipe_names", joinColumns = @JoinColumn(name = "food_data_id"))
+    @Column(name = "recipe_name")
+    private List<String> recipeNames; // 레시피 이름 목록
+
+
     // 데이터 저장 후 반환하는 생성자
-    public TotalFoodData(Members member, String mealType, LocalDate date, Map<String, Double> totalNutrition) {
+    public TotalFoodData(Members member, String mealType, LocalDate date, Map<String, Double> totalNutrition, List<String> recipeNames) {
         this.member = member;
         this.mealType = mealType;
         this.date = date;
         this.totalNutrition = totalNutrition;
+        this.recipeNames = recipeNames;
     }
 
     // toBuilder 메서드 구현
@@ -53,6 +61,7 @@ public class TotalFoodData {
                 .member(this.member)
                 .mealType(this.mealType)
                 .date(this.date)
-                .totalNutrition(this.totalNutrition);
+                .totalNutrition(this.totalNutrition)
+                .recipeNames(this.recipeNames); // recipeNames 추가
     }
 }
