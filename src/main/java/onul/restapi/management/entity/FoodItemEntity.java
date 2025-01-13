@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import onul.restapi.member.entity.Members;
 
+import java.util.Map;
+
 @Entity
 @Table(name = "food_items")
 @Getter
