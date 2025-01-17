@@ -32,4 +32,8 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     );
 
 
+    @Query("SELECT er FROM ExerciseRecord er WHERE er.member.memberId = :memberId AND er.recordDate = :recordDate")
+    List<ExerciseRecord> findRecordsByMemberIdAndDate(@Param("memberId") String memberId, @Param("recordDate") LocalDate recordDate);
+
+
 }

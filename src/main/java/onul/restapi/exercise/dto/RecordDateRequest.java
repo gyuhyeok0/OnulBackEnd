@@ -47,4 +47,5 @@ public class RecordDateRequest {
                 ", exerciseService=" + exerciseService +
                 '}';
     }
+
 }

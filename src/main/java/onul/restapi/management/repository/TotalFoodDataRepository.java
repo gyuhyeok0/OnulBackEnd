@@ -1,6 +1,7 @@
 package onul.restapi.management.repository;
 
 import onul.restapi.management.entity.TotalFoodData;
+import onul.restapi.member.entity.Members;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,10 @@ import java.time.LocalDate;
 public interface TotalFoodDataRepository extends JpaRepository<TotalFoodData, Long> {
 
     TotalFoodData findByMember_memberIdAndDate(String memberId, LocalDate date);
+
+    boolean existsByMemberAndDate(Members member, LocalDate date);
+
+
 
     // 필요한 쿼리 메서드를 추가할 수 있습니다.
 }
