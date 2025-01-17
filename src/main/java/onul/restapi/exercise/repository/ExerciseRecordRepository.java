@@ -89,4 +89,7 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
             @Param("recordDate") LocalDate recordDate
     );
 
+
+    boolean existsByMemberAndRecordDate(Members member, LocalDate date);
+
 }

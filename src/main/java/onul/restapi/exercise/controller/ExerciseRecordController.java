@@ -106,36 +106,32 @@ public class ExerciseRecordController {
         }
     }
 
+    // 기록페이지에서 운동기록 검색할때
+    @PostMapping("/recordsForDate")
+    public ResponseEntity<List<ExerciseRecordDTO>> getExerciseRecordsForDate(
+            @RequestBody ExerciseRecordSearchDTO request) {
 
+        try {
+            // 요청받은 exerciseId와 recordDate를 사용하여 운동 기록 조회
+            List<ExerciseRecordDTO> records = exerciseRecordService.getExerciseRecordsForDate(
+                    request.getMemberId(),
+                    request.getRecordDate()
+            );
 
-//    @PostMapping("/selectMostPreviousRecordDate")
-//    public ResponseEntity<String> selectMostPreviousRecordDate(
-//            @RequestBody RecordDateRequest request
-//    ) {
-//        try {
-//            // Service에서 가장 오래된 운동 기록 날짜 가져오기
-//            LocalDate recordDates = exerciseRecordService.getMostPreviousRecordDates(
-//                    request.getMemberId(),
-//                    request.getExerciseId(),
-//                    request.getExerciseService()
-//            );
-//
-//            System.out.println("recordDates: " + recordDates);
-//
-//            if (recordDates == null) {
-//                return ResponseEntity.noContent().build(); // 날짜가 없는 경우 204 No Content 반환
-//            }
-//
-//            // 문자열로 변환하여 TEXT 형식으로 응답 반환
-//            return ResponseEntity.ok()
-//                    .contentType(MediaType.TEXT_PLAIN) // Content-Type 설정
-//                    .body(recordDates.toString());
-//
-//        } catch (Exception e) {
-//            // 예외 발생 시 500 Internal Server Error 반환
-//            return ResponseEntity.status(500).build();
-//        }
-//    }
-//
+            // 조회된 기록이 없으면 204 No Content 반환
+            if (records.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            // 결과 반환
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(records);
+
+        } catch (Exception e) {
+            // 예외 발생 시 500 Internal Server Error 반환
+            return ResponseEntity.status(500).build();
+        }
+    }
 
 }
