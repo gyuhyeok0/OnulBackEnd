@@ -8,6 +8,7 @@ import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import onul.restapi.member.entity.Members;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 
@@ -80,6 +81,31 @@ public class BodyService {
                 savedEntity.getBodyFatMassInLbs(),
                 savedEntity.getBodyFatPercentage(),
                 savedEntity.getDate()
+        );
+    }
+
+    @Transactional
+    public BodyDataDto getBodyRecordsForDate(String memberId, LocalDate date) {
+
+        // memberId로 회원 조회
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        // memberId와 date를 기준으로 BodyData 조회
+        BodyDataEntity bodyData = (BodyDataEntity) bodyDataRepository.findByMember_MemberIdAndDate(memberId, date)
+                .orElseThrow(() -> new IllegalArgumentException("No body record found for the given member and date."));
+
+        // BodyData를 BodyDataDto로 변환 후 반환
+        return new BodyDataDto(
+                bodyData.getMember().getMemberId(),            // 회원 ID
+                bodyData.getWeight(),                          // 체중
+                bodyData.getWeightInLbs(),                     // 체중 (lbs)
+                bodyData.getSkeletalMuscleMass(),              // 골격근량
+                bodyData.getSkeletalMuscleMassInLbs(),         // 골격근량 (lbs)
+                bodyData.getBodyFatMass(),                     // 체지방량
+                bodyData.getBodyFatMassInLbs(),                // 체지방량 (lbs)
+                bodyData.getBodyFatPercentage(),               // 체지방률
+                bodyData.getDate()                             // 날짜
         );
     }
 

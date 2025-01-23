@@ -1,10 +1,8 @@
 package onul.restapi.management.controller;
 
-import onul.restapi.management.dto.FoodDataRequest;
+import jakarta.validation.Valid;
+import onul.restapi.management.dto.*;
 
-import onul.restapi.management.dto.FoodRecipeResponse;
-import onul.restapi.management.dto.SaveTotalFoodDataRequest;
-import onul.restapi.management.dto.SavedFoodDataResponse;
 import onul.restapi.management.service.FoodService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -84,6 +82,28 @@ public class FoodController {
     }
 
 
+    @PostMapping("/foodRecordsForDate")
+    public ResponseEntity<?> getFoodRecordsForDate(@RequestBody @Valid RecordRequest request) {
+        try {
+            // 요청 데이터 확인
+            System.out.println("Received memberId: " + request.getMemberId());
+            System.out.println("Received recordDate: " + request.getDate());
+
+            // 서비스 호출
+            List<SavedFoodDataResponse> records = foodService.getFoodRecordsForDate(request.getMemberId(), request.getDate());
+
+//            System.out.println("조회된 기록: " + records);
+
+            // JSON 형태로 응답 반환
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(records);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Invalid input: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error retrieving food records: " + e.getMessage());
+        }
+    }
 
 
 }

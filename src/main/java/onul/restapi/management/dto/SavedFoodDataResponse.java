@@ -62,4 +62,15 @@ public class SavedFoodDataResponse {
     public void setRecipeNames(List<String> recipeNames) {
         this.recipeNames = recipeNames;
     }
+
+    @Override
+    public String toString() {
+        return "SavedFoodDataResponse{" +
+                "memberId='" + memberId + '\'' +
+                ", mealType='" + mealType + '\'' +
+                ", date=" + date +
+                ", totalNutrition=" + totalNutrition +
+                ", recipeNames=" + recipeNames +
+                '}';
+    }
 }

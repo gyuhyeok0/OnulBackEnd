@@ -151,14 +151,15 @@ public class FoodService {
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
         System.out.println("Member found: " + member.getMemberId());
 
-        // 요청에서 전달받은 날짜와 회원 ID에 해당하는 TotalFoodData를 조회합니다.
-        TotalFoodData existingFoodData = totalFoodDataRepository.findByMember_memberIdAndDate(member.getMemberId(), request.getDate());
+        // 요청에서 전달받은 날짜와 회원 ID, mealType에 해당하는 TotalFoodData를 조회합니다.
+        TotalFoodData existingFoodData = totalFoodDataRepository.findByMember_memberIdAndDateAndMealType(
+                member.getMemberId(), request.getDate(), request.getMealType());
 
         if (existingFoodData != null) {
             // 데이터가 이미 존재하면 Builder를 사용하여 업데이트합니다.
             TotalFoodData updatedFoodData = existingFoodData.toBuilder()
-                    .mealType(request.getMealType())  // 식사 종류 (예: Breakfast, Lunch, Dinner)
-                    .totalNutrition(request.getTotalNutrition())  // 영양 정보 (Map)
+                    .mealType(request.getMealType())  // 식사 종류 업데이트
+                    .totalNutrition(request.getTotalNutrition())  // 영양 정보 업데이트
                     .recipeNames(request.getRecipeNames())  // 레시피 이름 목록 업데이트
                     .build();
 
@@ -171,7 +172,7 @@ public class FoodService {
                     updatedFoodData.getMealType(),
                     updatedFoodData.getDate(),
                     updatedFoodData.getTotalNutrition(),
-                    updatedFoodData.getRecipeNames()  // 레시피 이름도 반환
+                    updatedFoodData.getRecipeNames()
             );
         } else {
             // 데이터가 없으면 새로운 데이터를 생성합니다.
@@ -186,16 +187,43 @@ public class FoodService {
             // 새 데이터를 데이터베이스에 저장합니다.
             TotalFoodData savedFoodData = totalFoodDataRepository.save(newFoodData);
 
-            // 저장된 데이터를 SavedFoodDataResponse 객체로 변환하여 반환
+            // 저장된 데이터를 SavedFoodDataResponse 객체로 반환
             return new SavedFoodDataResponse(
                     savedFoodData.getMember().getMemberId(),
                     savedFoodData.getMealType(),
                     savedFoodData.getDate(),
                     savedFoodData.getTotalNutrition(),
-                    savedFoodData.getRecipeNames()  // 레시피 이름도 반환
+                    savedFoodData.getRecipeNames()
             );
         }
     }
 
 
+
+    @Transactional(readOnly = true)
+    public List<SavedFoodDataResponse> getFoodRecordsForDate(String memberId, LocalDate date) {
+        // 회원 조회
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        // TotalFoodData 조회 (날짜와 회원 ID 기준으로 모든 데이터 조회)
+        List<TotalFoodData> totalFoodDataList = totalFoodDataRepository.findAllByMember_memberIdAndDate(memberId, date);
+
+        if (totalFoodDataList.isEmpty()) {
+            throw new IllegalArgumentException("No food records found for the given member and date.");
+        }
+
+//        System.out.println("조회된 데이터 개수: " + totalFoodDataList.size());
+
+        // TotalFoodData 리스트를 SavedFoodDataResponse 리스트로 변환
+        return totalFoodDataList.stream()
+                .map(totalFoodData -> new SavedFoodDataResponse(
+                        totalFoodData.getMember().getMemberId(),
+                        totalFoodData.getMealType(),
+                        totalFoodData.getDate(),
+                        totalFoodData.getTotalNutrition(),
+                        totalFoodData.getRecipeNames()
+                ))
+                .collect(Collectors.toList());
+    }
 }

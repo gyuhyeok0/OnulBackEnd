@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface TotalFoodDataRepository extends JpaRepository<TotalFoodData, Long> {
@@ -13,6 +14,10 @@ public interface TotalFoodDataRepository extends JpaRepository<TotalFoodData, Lo
     TotalFoodData findByMember_memberIdAndDate(String memberId, LocalDate date);
 
     boolean existsByMemberAndDate(Members member, LocalDate date);
+
+    List<TotalFoodData> findAllByMember_memberIdAndDate(String memberId, LocalDate date);
+
+    TotalFoodData findByMember_memberIdAndDateAndMealType(String memberId, LocalDate date, String mealType);
 
 
 

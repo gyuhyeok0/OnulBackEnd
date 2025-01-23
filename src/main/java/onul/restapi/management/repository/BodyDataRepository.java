@@ -15,4 +15,6 @@ public interface BodyDataRepository extends JpaRepository<BodyDataEntity, Long> 
 
     boolean existsByMemberAndDate(Members member, LocalDate date);
 
+    Optional<Object> findByMember_MemberIdAndDate(String memberId, LocalDate date);
+
 }
