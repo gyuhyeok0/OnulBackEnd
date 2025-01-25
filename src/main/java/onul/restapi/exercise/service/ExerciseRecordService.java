@@ -130,33 +130,9 @@ public class ExerciseRecordService {
 
         if (existingRecord != null) {
             // 기존 데이터 업데이트 (빌더 사용)
-            ExerciseRecord updatedRecord = ExerciseRecord.builder()
-                    .exerciseRecordId(existingRecord.getExerciseRecordId()) // 기존 ID 유지
-                    .member(existingRecord.getMember()) // 기존 회원 정보 유지
-                    .exerciseServiceNumber(existingRecord.getExerciseServiceNumber()) // 기존 서비스 번호 유지
-                    .setNumber(existingRecord.getSetNumber()) // 기존 세트 번호 유지
-                    .set(existingRecord.getSet()) // 기존 세트 정보 유지
-                    .exercise(existingRecord.getExercise()) // 기존 운동 정보 유지
-                    .exerciseType(existingRecord.getExerciseType()) // 기존 운동 타입 유지
-                    .volume(volumeString) // 새로운 데이터 설정
-                    .repsVolume(repsVolume)
-                    .kmVolume(kmVolume)
-                    .miVolume(miVolume)
-                    .kgVolume(kgVolume)
-                    .lbsVolume(lbsVolume)
-                    .timeVolume(timeVolume)
-                    .recordDate(existingRecord.getRecordDate()) // 기존 기록 날짜 유지
-                    .weightUnit(existingRecord.getWeightUnit())
-                    .kmUnit(existingRecord.getKmUnit())
-                    .build();
+            exerciseRecordRepository.delete(existingRecord);
 
-            exerciseRecordRepository.save(updatedRecord);
-
-            // 세션의 변경 사항을 DB에 즉시 반영
-            entityManager.flush();  // flush() 호출
-
-            System.out.println("기존 운동 기록이 업데이트되었습니다: " + updatedRecord.getExerciseRecordId());
-        } else {
+        }
             // 새로운 데이터 생성 (빌더 사용)
             ExerciseRecord newRecord = ExerciseRecord.builder()
                     .member(member)
@@ -179,7 +155,7 @@ public class ExerciseRecordService {
 
             exerciseRecordRepository.save(newRecord);
             System.out.println("새로운 운동 기록이 저장되었습니다: " + newRecord.getExerciseRecordId());
-        }
+
     }
 
 
