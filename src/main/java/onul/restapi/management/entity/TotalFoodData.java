@@ -1,10 +1,7 @@
 package onul.restapi.management.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import onul.restapi.member.entity.Members;
 
 import java.time.LocalDate;
@@ -17,6 +14,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class TotalFoodData {
 
     @Id

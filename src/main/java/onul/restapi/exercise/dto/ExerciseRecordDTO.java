@@ -15,23 +15,21 @@ public class ExerciseRecordDTO {
 
     private String volume;
     private String weightUnit;
-    private String kmUnit;
+//    private String kmUnit;
     private LocalDate recordDate;
 
-    private Double kmVolume; // km 단위의 거리
-    private Double miVolume; // 마일 단위의 거리
+//    private Double kmVolume; // km 단위의 거리
+//    private Double miVolume; // 마일 단위의 거리
     private Double kgVolume; // kg 단위의 무게
-    private Double lbsVolume; // lbs 단위의 무게
-    private String timeVolume; // TIME 타입의 시간
-    private int repsVolume; // REPETITION 타입의 반복 횟수
-
-
+//    private Double lbsVolume; // lbs 단위의 무게
+//    private String timeVolume; // TIME 타입의 시간
+//    private int repsVolume; // REPETITION 타입의 반복 횟수
 
 
     public ExerciseRecordDTO() {
     }
 
-    public ExerciseRecordDTO(Long id, String memberId, int setNumber, SetDTO set, ExerciseDto exercise, int exerciseService, int exerciseType, String volume, String weightUnit, String kmUnit, LocalDate recordDate, Double kmVolume, Double miVolume, Double kgVolume, Double lbsVolume, String timeVolume, int repsVolume) {
+    public ExerciseRecordDTO(Long id, String memberId, int setNumber, SetDTO set, ExerciseDto exercise, int exerciseService, int exerciseType, String volume, String weightUnit, LocalDate recordDate, Double kgVolume) {
         this.id = id;
         this.memberId = memberId;
         this.setNumber = setNumber;
@@ -41,14 +39,8 @@ public class ExerciseRecordDTO {
         this.exerciseType = exerciseType;
         this.volume = volume;
         this.weightUnit = weightUnit;
-        this.kmUnit = kmUnit;
         this.recordDate = recordDate;
-        this.kmVolume = kmVolume;
-        this.miVolume = miVolume;
         this.kgVolume = kgVolume;
-        this.lbsVolume = lbsVolume;
-        this.timeVolume = timeVolume;
-        this.repsVolume = repsVolume;
     }
 
     public Long getId() {
@@ -123,14 +115,6 @@ public class ExerciseRecordDTO {
         this.weightUnit = weightUnit;
     }
 
-    public String getKmUnit() {
-        return kmUnit;
-    }
-
-    public void setKmUnit(String kmUnit) {
-        this.kmUnit = kmUnit;
-    }
-
     public LocalDate getRecordDate() {
         return recordDate;
     }
@@ -139,52 +123,12 @@ public class ExerciseRecordDTO {
         this.recordDate = recordDate;
     }
 
-    public Double getKmVolume() {
-        return kmVolume;
-    }
-
-    public void setKmVolume(Double kmVolume) {
-        this.kmVolume = kmVolume;
-    }
-
-    public Double getMiVolume() {
-        return miVolume;
-    }
-
-    public void setMiVolume(Double miVolume) {
-        this.miVolume = miVolume;
-    }
-
     public Double getKgVolume() {
         return kgVolume;
     }
 
     public void setKgVolume(Double kgVolume) {
         this.kgVolume = kgVolume;
-    }
-
-    public Double getLbsVolume() {
-        return lbsVolume;
-    }
-
-    public void setLbsVolume(Double lbsVolume) {
-        this.lbsVolume = lbsVolume;
-    }
-
-    public String getTimeVolume() {
-        return timeVolume;
-    }
-
-    public void setTimeVolume(String timeVolume) {
-        this.timeVolume = timeVolume;
-    }
-
-    public int getRepsVolume() {
-        return repsVolume;
-    }
-
-    public void setRepsVolume(int repsVolume) {
-        this.repsVolume = repsVolume;
     }
 
     @Override
@@ -199,14 +143,8 @@ public class ExerciseRecordDTO {
                 ", exerciseType=" + exerciseType +
                 ", volume='" + volume + '\'' +
                 ", weightUnit='" + weightUnit + '\'' +
-                ", kmUnit='" + kmUnit + '\'' +
                 ", recordDate=" + recordDate +
-                ", kmVolume=" + kmVolume +
-                ", miVolume=" + miVolume +
                 ", kgVolume=" + kgVolume +
-                ", lbsVolume=" + lbsVolume +
-                ", timeVolume='" + timeVolume + '\'' +
-                ", repsVolume=" + repsVolume +
                 '}';
     }
 }

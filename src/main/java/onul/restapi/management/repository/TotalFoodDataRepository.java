@@ -19,6 +19,7 @@ public interface TotalFoodDataRepository extends JpaRepository<TotalFoodData, Lo
 
     TotalFoodData findByMember_memberIdAndDateAndMealType(String memberId, LocalDate date, String mealType);
 
+    List<TotalFoodData> findByMemberAndDateBetween(Members member, LocalDate monthStart, LocalDate monthEnd);
 
 
     // 필요한 쿼리 메서드를 추가할 수 있습니다.

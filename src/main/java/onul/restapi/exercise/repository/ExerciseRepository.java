@@ -36,4 +36,8 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<ExerciseRecord> findRecordsByMemberIdAndDate(@Param("memberId") String memberId, @Param("recordDate") LocalDate recordDate);
 
 
+    @Query("SELECT e FROM Exercise e WHERE e.mainMuscleGroup = :mainMuscleGroup AND e.detailMuscleGroup = :detailMuscleGroup")
+    Optional<Exercise> findByMainMuscleGroupAndDetailMuscleGroup(@Param("mainMuscleGroup") String mainMuscleGroup,
+                                                                 @Param("detailMuscleGroup") String detailMuscleGroup);
+
 }

@@ -92,4 +92,20 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
 
     boolean existsByMemberAndRecordDate(Members member, LocalDate date);
 
+    @Query("SELECT r FROM ExerciseRecord r WHERE r.member.memberId = :memberId AND r.recordDate > :date")
+    List<ExerciseRecord> findRecordsByMemberIdAndAfterDate(@Param("memberId") String memberId, @Param("date") LocalDate date);
+
+
+    @Query("SELECT r FROM ExerciseRecord r WHERE r.member.memberId = :memberId")
+    List<ExerciseRecord> findRecordsByMemberId(@Param("memberId") String memberId);
+
+    @Query("SELECT e.id FROM Exercise e WHERE e.mainMuscleGroup = :mainMuscleGroup")
+    Optional<Long> findExerciseIdByMainMuscleGroup(@Param("mainMuscleGroup") String mainMuscleGroup);
+
+
+    @Query("SELECT e FROM ExerciseRecord e WHERE e.member.memberId = :memberId AND e.recordDate > :oneWeekAgo")
+    List<ExerciseRecord> findRecentRecords(@Param("memberId") String memberId, @Param("oneWeekAgo") LocalDate oneWeekAgo);
+
+
+    List<ExerciseRecord> findByMemberMemberIdAndRecordDateBetween(String memberId, LocalDate oneWeekAgo, LocalDate yesterday);
 }

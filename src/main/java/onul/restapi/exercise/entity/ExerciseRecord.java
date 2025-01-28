@@ -62,26 +62,18 @@ public class ExerciseRecord {
     private String weightUnit; // 무게 단위 (kg, lbs)
 
     @Column(nullable = true)
-    private String kmUnit; // 거리 단위 (km, mi)
-
-    @Column(nullable = true)
-    private Double kmVolume; // km 단위 거리
-
-    @Column(nullable = true)
-    private Double miVolume; // 마일 단위 거리
-
-    @Column(nullable = true)
     private Double kgVolume; // kg 단위 무게
 
     @Column(nullable = true)
-    private Double lbsVolume; // lbs 단위 무게
-
-    @Column(nullable = true)
-    private String timeVolume; // TIME 운동 시간
-
-    @Column(nullable = true)
-    private int repsVolume; // REPETITION 반복 횟수
-
-    @Column(nullable = true)
     private LocalDate recordDate; // 기록 날짜
+
+    public Integer getExerciseTypeId() {
+        return this.exerciseType != null ? this.exerciseType.getId() : null;
+    }
+
+    public Integer getExerciseServiceId() {
+        return this.exerciseServiceNumber != null ? this.exerciseServiceNumber.getId() : null;
+    }
+
 }
+
