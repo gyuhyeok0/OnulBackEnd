@@ -63,26 +63,8 @@ public class ExerciseRecordService {
         // exerciseType에 따라 volume 타입 변환
         switch (exerciseRecord.getExerciseType()) {
             case 1: // REPETITION
-                try {
-                    repsVolume = Integer.parseInt(volumeString);
-                    parsedVolume = repsVolume;
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("REPETITION에 유효하지 않은 volume 값: " + volumeString);
-                }
                 break;
             case 2: // DISTANCE
-                try {
-                    parsedVolume = Double.parseDouble(volumeString);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("DISTANCE에 유효하지 않은 volume 값: " + volumeString);
-                }
-                if ("km".equals(exerciseRecord.getKmUnit())) {
-                    kmVolume = roundToTwoDecimalPlaces((Double) parsedVolume);
-                    miVolume = roundToTwoDecimalPlaces(kmVolume * 0.62);
-                } else if ("mi".equals(exerciseRecord.getKmUnit())) {
-                    miVolume = roundToTwoDecimalPlaces((Double) parsedVolume);
-                    kmVolume = roundToTwoDecimalPlaces(miVolume / 0.62);
-                }
                 break;
             case 3: // WEIGHT
                 try {
@@ -99,8 +81,6 @@ public class ExerciseRecordService {
                 }
                 break;
             case 4: // TIME
-                timeVolume = volumeString;
-                parsedVolume = timeVolume;
                 break;
             default:
                 throw new IllegalArgumentException("알 수 없는 exerciseType: " + exerciseRecord.getExerciseType());
@@ -142,15 +122,15 @@ public class ExerciseRecordService {
                     .exercise(exerciseEntity)
                     .exerciseType(exerciseTypeEntity)
                     .volume(volumeString)
-                    .repsVolume(repsVolume)
-                    .kmVolume(kmVolume)
-                    .miVolume(miVolume)
+//                    .repsVolume(repsVolume)
+//                    .kmVolume(kmVolume)
+//                    .miVolume(miVolume)
                     .kgVolume(kgVolume)
-                    .lbsVolume(lbsVolume)
-                    .timeVolume(timeVolume)
+//                    .lbsVolume(lbsVolume)
+//                    .timeVolume(timeVolume)
                     .recordDate(today)
                     .weightUnit(exerciseRecord.getWeightUnit())
-                    .kmUnit(exerciseRecord.getKmUnit())
+//                    .kmUnit(exerciseRecord.getKmUnit())
                     .build();
 
             exerciseRecordRepository.save(newRecord);
@@ -235,14 +215,14 @@ public class ExerciseRecordService {
                         record.getExerciseType().getId(), // 운동 타입 ID 매핑
                         record.getVolume(), // 볼륨 매핑
                         record.getWeightUnit(), // 무게 단위 매핑
-                        record.getKmUnit(), // 거리 단위 매핑
+//                        record.getKmUnit(), // 거리 단위 매핑
                         record.getRecordDate(), // 기록 날짜 매핑
-                        record.getKmVolume(), // km 볼륨 매핑
-                        record.getMiVolume(), // 마일 볼륨 매핑
-                        record.getKgVolume(), // kg 볼륨 매핑
-                        record.getLbsVolume(), // lbs 볼륨 매핑
-                        record.getTimeVolume(), // 시간 매핑
-                        record.getRepsVolume() // 반복 횟수 매핑
+//                        record.getKmVolume(), // km 볼륨 매핑
+//                        record.getMiVolume(), // 마일 볼륨 매핑
+                        record.getKgVolume() // kg 볼륨 매핑
+//                        record.getLbsVolume(), // lbs 볼륨 매핑
+//                        record.getTimeVolume(), // 시간 매핑
+//                        record.getRepsVolume() // 반복 횟수 매핑
                 ))
                 .toList();
     }
@@ -336,14 +316,14 @@ public class ExerciseRecordService {
                                     record.getExerciseType().getId(),
                                     record.getVolume(),
                                     record.getWeightUnit(),
-                                    record.getKmUnit(),
+//                                    record.getKmUnit(),
                                     record.getRecordDate(),
-                                    record.getKmVolume(),
-                                    record.getMiVolume(),
-                                    record.getKgVolume(),
-                                    record.getLbsVolume(),
-                                    record.getTimeVolume(),
-                                    record.getRepsVolume()
+//                                    record.getKmVolume(),
+//                                    record.getMiVolume(),
+                                    record.getKgVolume()
+//                                    record.getLbsVolume(),
+//                                    record.getTimeVolume(),
+//                                    record.getRepsVolume()
                             ))
                             .toList()
             );
@@ -390,14 +370,14 @@ public class ExerciseRecordService {
                         record.getExerciseType().getId(), // 운동 타입 ID 매핑
                         record.getVolume(), // 볼륨 매핑
                         record.getWeightUnit(), // 무게 단위 매핑
-                        record.getKmUnit(), // 거리 단위 매핑
+//                        record.getKmUnit(), // 거리 단위 매핑
                         record.getRecordDate(), // 기록 날짜 매핑
-                        record.getKmVolume(), // km 볼륨 매핑
-                        record.getMiVolume(), // 마일 볼륨 매핑
-                        record.getKgVolume(), // kg 볼륨 매핑
-                        record.getLbsVolume(), // lbs 볼륨 매핑
-                        record.getTimeVolume(), // 시간 매핑
-                        record.getRepsVolume() // 반복 횟수 매핑
+//                        record.getKmVolume(), // km 볼륨 매핑
+//                        record.getMiVolume(), // 마일 볼륨 매핑
+                        record.getKgVolume() // kg 볼륨 매핑
+//                        record.getLbsVolume(), // lbs 볼륨 매핑
+//                        record.getTimeVolume(), // 시간 매핑
+//                        record.getRepsVolume() // 반복 횟수 매핑
                 ))
                 .toList();
     }
