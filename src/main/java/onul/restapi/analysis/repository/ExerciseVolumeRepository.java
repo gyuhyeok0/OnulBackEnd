@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface ExerciseVolumeRepository extends JpaRepository<ExerciseVolumeStatsEntity, Long> {
 
+
     // 특정 회원의 가장 최근 기록 날짜를 조회
     @Query("SELECT MAX(e.recordDate) FROM ExerciseVolumeStatsEntity e WHERE e.member.memberId = :memberId")
     Optional<LocalDate> findLatestRecordDateByMemberId(@Param("memberId") String memberId);
@@ -24,4 +25,7 @@ public interface ExerciseVolumeRepository extends JpaRepository<ExerciseVolumeSt
     List<ExerciseVolumeStatsEntity> findByRecordDateBetween(LocalDate startOfWeek, LocalDate endOfWeek);
 
 
+    List<ExerciseVolumeStatsEntity> findByMember_MemberIdAndRecordDateBetween(String memberId, LocalDate startDate, LocalDate endDate);
+
+    Optional<Object> findTopByMember_MemberIdAndDetailMuscleGroupAndRecordDateBeforeOrderByRecordDateDesc(String memberId, String detailMuscle, LocalDate startDate);
 }

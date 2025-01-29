@@ -1,8 +1,13 @@
 package onul.restapi.analysis.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.service.AnalysisService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/analysis")
@@ -43,4 +48,18 @@ public class AnalysisController {
         }
     }
 
+
+    @GetMapping(value = "/findExerciseVolume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExerciseVolumeResponse> findExerciseVolume(@RequestParam("memberId") String memberId) {
+        LocalDate endDate = LocalDate.now().minusDays(1); // 어제 (오늘 제외)
+        LocalDate startDate = endDate.minusDays(6); // 어제로부터 6일 전 (총 7일간 조회)
+
+        ExerciseVolumeResponse response = analysisService.getExerciseVolume(memberId, startDate, endDate);
+
+        System.out.println(response);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
 }

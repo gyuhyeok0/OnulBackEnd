@@ -1,5 +1,7 @@
 package onul.restapi.analysis.service;
 
+import onul.restapi.analysis.dto.ExerciseDailyRecord;
+import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
 import onul.restapi.analysis.entity.ExerciseVolumeStatsEntity;
 import onul.restapi.analysis.entity.MuscleFatigue;
@@ -24,12 +26,14 @@ import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.stream.IntStream;
 
 
 @Service
@@ -622,6 +626,106 @@ public class AnalysisService {
         recoveryTimeMap.put("회전근개", 36); // 어깨 관절 안정 근육
         recoveryTimeMap.put("대흉근", 48); // 가슴 주요 근육
         return recoveryTimeMap;
+    }
+
+    public ExerciseVolumeResponse getExerciseVolume(String memberId, LocalDate startDate, LocalDate endDate) {
+        // 1️⃣ startDate ~ endDate 기간 동안 운동 데이터 조회
+        List<ExerciseVolumeStatsEntity> records = exerciseVolumeRepository
+                .findByMember_MemberIdAndRecordDateBetween(memberId, startDate, endDate);
+
+        // 2️⃣ 모든 날짜 리스트 생성 (startDate ~ endDate)
+        List<String> allDates = IntStream.rangeClosed(0, (int) ChronoUnit.DAYS.between(startDate, endDate))
+                .mapToObj(i -> startDate.plusDays(i).toString())
+                .collect(Collectors.toList());
+
+        // 3️⃣ 데이터를 mainMuscleGroup, detailMuscleGroup 별로 그룹화하여 날짜별 볼륨 저장
+        Map<String, Map<String, Map<Object, Double>>> groupedData = records.stream()
+                .collect(Collectors.groupingBy(
+                        ExerciseVolumeStatsEntity::getMainMuscleGroup, // mainMuscleGroup 기준 그룹화
+                        Collectors.groupingBy(
+                                ExerciseVolumeStatsEntity::getDetailMuscleGroup, // detailMuscleGroup 기준 그룹화
+                                Collectors.toMap(
+                                        record -> record.getRecordDate().toString(), // 날짜 기준으로 Map 생성
+                                        ExerciseVolumeStatsEntity::getDailyVolume, // 볼륨 값 저장
+                                        (existing, replacement) -> existing // 중복된 날짜는 기존 값 유지
+                                )
+                        )
+                ));
+
+        System.out.println("그룹데이터"+groupedData);
+
+        // 4️⃣ `startDate` 데이터가 없으면, `startDate` 이전의 가장 최근 데이터를 가져옴
+        for (String mainMuscle : groupedData.keySet()) {
+            Map<String, Map<Object, Double>> detailGroupMap = groupedData.get(mainMuscle);
+
+            for (String detailMuscle : detailGroupMap.keySet()) {
+                Map<Object, Double> dateToVolumeMap = detailGroupMap.get(detailMuscle);
+
+                // `startDate`에 데이터가 없으면, 과거의 가장 최신 데이터를 가져옴
+                if (!dateToVolumeMap.containsKey(startDate.toString())) {
+                    System.out.println("    ❌ startDate (" + startDate + ") 없음! 과거 데이터 조회...");
+
+                    Double lastVolume = findLatestPastVolume(memberId, detailMuscle, startDate);
+                    dateToVolumeMap.put(startDate.toString(), lastVolume);
+
+                    System.out.println("    ✅ 추가된 값: " + startDate + " = " + lastVolume);
+                } else {
+                    System.out.println("    ✅ startDate (" + startDate + ") 이미 존재, 업데이트 필요 없음.");
+                }
+            }
+        }
+
+        // 5️⃣ 최종 응답을 위한 변환: main과 detail로 키를 구분하여 날짜별 볼륨을 리스트로 변환
+        Map<String, List<Double>> formattedRecords = new LinkedHashMap<>();
+        for (String mainMuscle : groupedData.keySet()) {
+            Map<String, Map<Object, Double>> detailGroupMap = groupedData.get(mainMuscle);
+
+            for (String detailMuscle : detailGroupMap.keySet()) {
+                Map<Object, Double> dateToVolumeMap = detailGroupMap.get(detailMuscle);
+
+                // volumes 리스트 초기화
+                List<Double> volumes = new ArrayList<>();
+
+                // 모든 날짜에 대해 처리
+                for (int i = 0; i < allDates.size(); i++) {
+                    String date = allDates.get(i);
+
+                    if (date.equals(startDate.toString()) && !dateToVolumeMap.containsKey(date)) {
+                        // startDate에 값이 없을 때만 0.0을 추가
+                        System.out.println("    ❌ startDate (" + startDate + ") 없음! 0.0 추가");
+                        volumes.add(0.0);
+                    } else {
+                        Double volume = dateToVolumeMap.get(date);
+                        if (volume == null) {
+                            // 데이터가 없으면 null로 설정
+                            System.out.println("    ⚠️ 날짜: " + date + " → 데이터 없음 (null)");
+                            volumes.add(null);
+                        } else {
+                            // volume이 존재하면 그대로 추가
+                            System.out.println("    ✅ 날짜: " + date + " → 데이터 존재 (" + volume + ")");
+                            volumes.add(volume);
+                        }
+                    }
+                }
+
+                // main과 detail을 결합하여 키를 사용
+                formattedRecords.put("main=" + mainMuscle + ", detail=" + detailMuscle, volumes);
+            }
+        }
+
+        return new ExerciseVolumeResponse(allDates, formattedRecords);
+    }
+
+    /**
+     * `startDate` 이전의 가장 최근 운동량을 가져오는 함수
+     */
+    private Double findLatestPastVolume(String memberId, String detailMuscle, LocalDate startDate) {
+        ExerciseVolumeStatsEntity latestRecord = (ExerciseVolumeStatsEntity) exerciseVolumeRepository
+                .findTopByMember_MemberIdAndDetailMuscleGroupAndRecordDateBeforeOrderByRecordDateDesc(
+                        memberId, detailMuscle, startDate
+                ).orElse(null);
+
+        return (latestRecord != null) ? latestRecord.getDailyVolume() : 0.0;
     }
 
 }
