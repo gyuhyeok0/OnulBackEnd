@@ -1,6 +1,6 @@
 package onul.restapi.analysis.service;
 
-import onul.restapi.analysis.dto.ExerciseDailyRecord;
+import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
 import onul.restapi.analysis.entity.ExerciseVolumeStatsEntity;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -652,7 +651,6 @@ public class AnalysisService {
                         )
                 ));
 
-        System.out.println("그룹데이터"+groupedData);
 
         // 4️⃣ `startDate` 데이터가 없으면, `startDate` 이전의 가장 최근 데이터를 가져옴
         for (String mainMuscle : groupedData.keySet()) {
@@ -663,14 +661,12 @@ public class AnalysisService {
 
                 // `startDate`에 데이터가 없으면, 과거의 가장 최신 데이터를 가져옴
                 if (!dateToVolumeMap.containsKey(startDate.toString())) {
-                    System.out.println("    ❌ startDate (" + startDate + ") 없음! 과거 데이터 조회...");
 
                     Double lastVolume = findLatestPastVolume(memberId, detailMuscle, startDate);
                     dateToVolumeMap.put(startDate.toString(), lastVolume);
 
-                    System.out.println("    ✅ 추가된 값: " + startDate + " = " + lastVolume);
                 } else {
-                    System.out.println("    ✅ startDate (" + startDate + ") 이미 존재, 업데이트 필요 없음.");
+
                 }
             }
         }
@@ -692,17 +688,14 @@ public class AnalysisService {
 
                     if (date.equals(startDate.toString()) && !dateToVolumeMap.containsKey(date)) {
                         // startDate에 값이 없을 때만 0.0을 추가
-                        System.out.println("    ❌ startDate (" + startDate + ") 없음! 0.0 추가");
                         volumes.add(0.0);
                     } else {
                         Double volume = dateToVolumeMap.get(date);
                         if (volume == null) {
                             // 데이터가 없으면 null로 설정
-                            System.out.println("    ⚠️ 날짜: " + date + " → 데이터 없음 (null)");
                             volumes.add(null);
                         } else {
                             // volume이 존재하면 그대로 추가
-                            System.out.println("    ✅ 날짜: " + date + " → 데이터 존재 (" + volume + ")");
                             volumes.add(volume);
                         }
                     }
@@ -727,5 +720,64 @@ public class AnalysisService {
 
         return (latestRecord != null) ? latestRecord.getDailyVolume() : 0.0;
     }
+
+
+    public ExerciseVolumeDataResponse getWeeklyAndMonthlyVolume(String memberId) {
+
+        LocalDate today = LocalDate.now();
+
+        // 1. 회원 정보 가져오기
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+
+        // 주간 데이터 조회 (최근 6주간)
+        List<ExerciseGroupVolumeStatsEntity> weeklyData = exerciseVolumeRepository.findByMember_MemberIdAndPeriodTypeAndStartDateBetween(
+                memberId,
+                "WEEKLY",
+                today.minusWeeks(6),
+                today
+        );
+
+        // 월간 데이터 조회 (최근 1년간)
+        List<ExerciseGroupVolumeStatsEntity> monthlyData = exerciseVolumeRepository.findByMember_MemberIdAndPeriodTypeAndStartDateBetween(
+                memberId,
+                "MONTHLY",
+                today.minusYears(1),
+                today
+        );
+
+        // 주간 데이터를 {startDate, mainMuscleGroup, totalVolume} 형태로 변환
+        List<Map<String, Object>> weeklyVolumeList = weeklyData.stream()
+                .map(data -> {
+                    Map<String, Object> weeklyVolume = new HashMap<>();
+                    weeklyVolume.put("startDate", data.getStartDate());
+                    weeklyVolume.put("mainMuscleGroup", data.getMainMuscleGroup());
+                    weeklyVolume.put("totalVolume", data.getTotalVolume());
+                    return weeklyVolume;
+                })
+                .collect(Collectors.toList());
+
+        // 월간 데이터를 {startDate, mainMuscleGroup, totalVolume} 형태로 변환
+        List<Map<String, Object>> monthlyVolumeList = monthlyData.stream()
+                .map(data -> {
+                    Map<String, Object> monthlyVolume = new HashMap<>();
+                    monthlyVolume.put("startDate", data.getStartDate());
+                    monthlyVolume.put("mainMuscleGroup", data.getMainMuscleGroup());
+                    monthlyVolume.put("totalVolume", data.getTotalVolume());
+                    return monthlyVolume;
+                })
+                .collect(Collectors.toList());
+
+        // 응답 객체 생성
+        ExerciseVolumeDataResponse response = new ExerciseVolumeDataResponse();
+        response.setWeeklyVolume(weeklyVolumeList);  // 주간 운동량 데이터
+        response.setMonthlyVolume(monthlyVolumeList);  // 월간 운동량 데이터
+
+        return response;
+    }
+
+
+
+
 
 }

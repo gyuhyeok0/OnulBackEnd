@@ -1,6 +1,7 @@
 package onul.restapi.analysis.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.service.AnalysisService;
 import org.springframework.http.MediaType;
@@ -56,10 +57,20 @@ public class AnalysisController {
 
         ExerciseVolumeResponse response = analysisService.getExerciseVolume(memberId, startDate, endDate);
 
-        System.out.println(response);
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);
     }
+
+
+    @GetMapping(value = "/WeeklyAndMonthlyExerciseVolume", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> WeeklyAndMonthlyExerciseVolume(@RequestParam("memberId") String memberId) {
+
+        ExerciseVolumeDataResponse response = analysisService.getWeeklyAndMonthlyVolume(memberId);  // 서비스에서 데이터 가져오기
+
+        return ResponseEntity.ok()  // 성공적인 응답 반환
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);  // 응답 본문에 데이터 추가
+    }
+
 }
