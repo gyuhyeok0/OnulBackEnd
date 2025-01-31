@@ -2,6 +2,7 @@ package onul.restapi.analysis.service;
 
 import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
+import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
 import onul.restapi.analysis.entity.ExerciseVolumeStatsEntity;
 import onul.restapi.analysis.entity.MuscleFatigue;
@@ -776,7 +777,38 @@ public class AnalysisService {
         return response;
     }
 
+    public List<WeightAndDietStatisticsDTO> getMonthlyStatistics(String memberId) {
+        LocalDate today = LocalDate.now();
+        List<WeightAndDietStatisticsDTO> statisticsList = new ArrayList<>();
 
+        for (int i = 0; i < 10; i++) {
+            LocalDate startOfMonth = today.minusMonths(i).withDayOfMonth(1);
+
+            List<WeightAndDietStatistics> monthlyStatistics = weightAndDietStatisticsRepository
+                    .findByMember_MemberIdAndDateAfter(memberId, startOfMonth);
+
+            List<WeightAndDietStatisticsDTO> monthlyDTO = monthlyStatistics.stream()
+                    .map(statistics -> new WeightAndDietStatisticsDTO(
+                            statistics.getDate(),
+                            statistics.getAverageWeight(),
+                            statistics.getAverageBodyFatMass(),
+                            statistics.getAverageSkeletalMuscleMass(),
+                            statistics.getAverageCalories(),
+                            statistics.getAverageProtein(),
+                            statistics.getAverageCarbohydrates()
+                    ))
+                    .collect(Collectors.toList());
+
+            // 중복된 날짜를 확인하여 추가
+            for (WeightAndDietStatisticsDTO dto : monthlyDTO) {
+                if (statisticsList.stream().noneMatch(existing -> existing.getDate().equals(dto.getDate()))) {
+                    statisticsList.add(dto);
+                }
+            }
+        }
+
+        return statisticsList;
+    }
 
 
 

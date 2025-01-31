@@ -3,12 +3,15 @@ package onul.restapi.analysis.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
+import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
+import onul.restapi.analysis.entity.WeightAndDietStatistics;
 import onul.restapi.analysis.service.AnalysisService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/analysis")
@@ -71,6 +74,17 @@ public class AnalysisController {
         return ResponseEntity.ok()  // 성공적인 응답 반환
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response);  // 응답 본문에 데이터 추가
+    }
+
+
+    @GetMapping(value = "/MonthlyWeightAndDiet", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getMonthlyWeightAndDiet(@RequestParam("memberId") String memberId) {
+        List<WeightAndDietStatisticsDTO> response = analysisService.getMonthlyStatistics(memberId);
+
+        System.out.println(response);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response); // Return the statistics data
     }
 
 }

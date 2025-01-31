@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface WeightAndDietStatisticsRepository extends JpaRepository<WeightAndDietStatistics, Long> {
@@ -13,4 +14,5 @@ public interface WeightAndDietStatisticsRepository extends JpaRepository<WeightA
     // 특정 회원과 날짜에 해당하는 통계 가져오기
     WeightAndDietStatistics findByMemberAndDate(Members member, LocalDate date);
 
+    List<WeightAndDietStatistics> findByMember_MemberIdAndDateAfter(String memberId, LocalDate startOfMonth);
 }
