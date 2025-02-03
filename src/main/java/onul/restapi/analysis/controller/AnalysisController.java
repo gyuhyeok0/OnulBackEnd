@@ -3,7 +3,9 @@ package onul.restapi.analysis.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
+import onul.restapi.analysis.dto.MuscleFatigueDTO;
 import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
+import onul.restapi.analysis.entity.MuscleFatigue;
 import onul.restapi.analysis.entity.WeightAndDietStatistics;
 import onul.restapi.analysis.service.AnalysisService;
 import org.springframework.http.MediaType;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/analysis")
@@ -85,6 +88,20 @@ public class AnalysisController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response); // Return the statistics data
+    }
+
+
+    @GetMapping(value = "/getMuscleFaigue", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getMuscleFatigue(@RequestParam("memberId") String memberId) {
+
+        System.out.println("안녕"+ memberId);
+        // 서비스에서 오늘 날짜 기준의 데이터를 조회하고 그룹화된 결과를 받아옴
+        Map<String, List<MuscleFatigueDTO>> response = analysisService.getMuscleFatigueByMemberAndToday(memberId);
+
+        // 응답을 JSON 형태로 반환
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response); // 근육 그룹별 피로도 리스트
     }
 
 }
