@@ -23,25 +23,34 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final TokenUtils tokenUtils;
 
+    // 초당 최대 요청 수
+    private static final int MAX_REQUESTS_PER_SECOND = 10;
+    private static final long TIME_WINDOW = TimeUnit.SECONDS.toMillis(1);  // 1초 윈도우
+
+    private static Map<String, Long> requestCount = new HashMap<>();
+    private static Map<String, Long> lastRequestTime = new HashMap<>();
+
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, TokenUtils tokenUtils) {
         super(authenticationManager);
         this.tokenUtils = tokenUtils; // TokenUtils 주입
     }
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
+        // API 호출을 제외할 URL 패턴 설정
         List<String> roleLeessList = Arrays.asList(
                 "/auth/refresh",
                 "/inspection/(.*)",
-
-
                 "/privacy-policy.html",
                 "/signup/(.*)",
                 "/privacy-policy/(.*)",
@@ -62,10 +71,31 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 "/api/v1/reviews/(\\d+)?offset=\\d+"
         );
 
+        // 인증되지 않은 URL은 그대로 통과
         if (roleLeessList.stream().anyMatch(pattern -> Pattern.matches(pattern, request.getRequestURI()))) {
             chain.doFilter(request, response);
             return;
         }
+
+        String clientIp = request.getRemoteAddr(); // 클라이언트 IP 주소
+        long currentTime = System.currentTimeMillis(); // 현재 시간
+
+        // 초당 요청 수 제한 체크
+        if (lastRequestTime.containsKey(clientIp) && currentTime - lastRequestTime.get(clientIp) <= TIME_WINDOW) {
+            long requestCountForIp = requestCount.getOrDefault(clientIp, 0L);
+            if (requestCountForIp >= MAX_REQUESTS_PER_SECOND) {
+                // 초과 요청에 대해서 429 상태 코드 반환
+                response.setStatus(429); // HTTP 429 상태 코드 (Too Many Requests)
+                response.getWriter().write("{\"status\": 429, \"message\": \"Too Many Requests\"}");
+                return; // 더 이상 처리하지 않음
+            }
+            requestCount.put(clientIp, requestCountForIp + 1);
+        } else {
+            // 새로운 시간 윈도우 시작
+            requestCount.put(clientIp, 1L);
+        }
+
+        lastRequestTime.put(clientIp, currentTime); // 마지막 요청 시간 기록
 
         String header = request.getHeader(AuthConstants.AUTH_HEADER);
 

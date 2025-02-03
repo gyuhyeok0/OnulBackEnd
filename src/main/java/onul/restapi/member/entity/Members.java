@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
+import java.util.Optional;
 
 @Entity
 @NoArgsConstructor
@@ -50,4 +51,5 @@ public class Members {
         this.memberStatus = status;
         return this;
     }
+
 }

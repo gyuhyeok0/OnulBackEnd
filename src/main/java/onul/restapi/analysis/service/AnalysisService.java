@@ -2,6 +2,7 @@ package onul.restapi.analysis.service;
 
 import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
+import onul.restapi.analysis.dto.MuscleFatigueDTO;
 import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
 import onul.restapi.analysis.entity.ExerciseVolumeStatsEntity;
@@ -499,11 +500,10 @@ public class AnalysisService {
             dailyMuscleGroupVolume.put(recordDate, muscleGroupVolume);
         }
 
-
         // 5. 근육 그룹별 회복 시간 정의
         Map<String, Integer> recoveryTimeByMuscleGroup = getRecoveryTimeByMuscleGroup();
 
-        // 6. 날짜별 근육 그룹 피로도 계산
+// 6. 날짜별 근육 그룹 피로도 계산
         Map<LocalDate, Map<String, Double>> dailyMuscleFatigue = new HashMap<>();
         DecimalFormat df = new DecimalFormat("0.00"); // 소숫점 2자리로 포맷 지정
 
@@ -512,6 +512,9 @@ public class AnalysisService {
             Map<String, Double> muscleGroupVolume = entry.getValue();
 
             Map<String, Double> muscleFatigue = new HashMap<>();
+
+            // 오늘 날짜와의 차이를 계산
+            long daysSinceExercise = ChronoUnit.DAYS.between(date, LocalDate.now());
 
             for (Map.Entry<String, Double> muscleEntry : muscleGroupVolume.entrySet()) {
                 String muscleGroup = muscleEntry.getKey();
@@ -523,12 +526,18 @@ public class AnalysisService {
                 // 피로도 계산: 볼륨 × (1 ÷ 회복 시간)
                 double fatigue = volume * (1.0 / recoveryTime);
 
-                muscleFatigue.put(muscleGroup, fatigue);
+                // 회복 비율 가져오기 (기본값: 90% 감소)
+                double reductionRate = getFatigueReductionRateByMuscleGroup().getOrDefault(muscleGroup, 0.1);
+
+                // 경과된 날짜에 맞춰 피로도 감소 적용
+                double adjustedFatigue = fatigue * Math.pow(reductionRate, daysSinceExercise);
+
+                // 피로도 맵에 저장
+                muscleFatigue.put(muscleGroup, adjustedFatigue);
             }
 
             dailyMuscleFatigue.put(date, muscleFatigue);
         }
-
 
         // 7. 근육 그룹별 주간 평균 피로도 계산
         Map<String, Double> weeklyAverageFatigue = new HashMap<>();
@@ -589,6 +598,46 @@ public class AnalysisService {
 
     }
 
+    private Map<String, Double> getFatigueReductionRateByMuscleGroup() {
+        Map<String, Double> reductionRateMap = new HashMap<>();
+
+        // 근육 그룹별 회복 비율 설정 (24시간 경과 후 피로도의 남은 비율)
+        reductionRateMap.put("광배근", 0.5); // 하루 지나면 50% 회복 (상체 큰 근육)
+        reductionRateMap.put("둔근", 0.6); // 하루 지나면 60% 회복 (엉덩이 근육)
+        reductionRateMap.put("대퇴사두근", 0.6); // 하루 지나면 60% 회복 (허벅지 앞쪽 큰 근육)
+        reductionRateMap.put("심폐 지구력", 0.1); // 하루 지나면 90% 회복 (빠르게 회복)
+        reductionRateMap.put("코어", 0.5); // 하루 지나면 50% 회복 (복부 중심 근육)
+        reductionRateMap.put("복직근", 0.5); // 하루 지나면 50% 회복 (복부 근육)
+        reductionRateMap.put("외측 대퇴사두근", 0.6); // 하루 지나면 60% 회복 (허벅지 외측)
+        reductionRateMap.put("내측 대퇴사두근", 0.6); // 하루 지나면 60% 회복 (허벅지 내측)
+        reductionRateMap.put("하부 등", 0.5); // 하루 지나면 50% 회복 (하부 등 근육)
+        reductionRateMap.put("하부 가슴", 0.5); // 하루 지나면 50% 회복 (하부 가슴 근육)
+        reductionRateMap.put("중간 가슴", 0.5); // 하루 지나면 50% 회복 (중간 가슴 근육)
+        reductionRateMap.put("윗가슴", 0.5); // 하루 지나면 50% 회복 (상부 가슴 근육)
+        reductionRateMap.put("이두근", 0.6); // 하루 지나면 60% 회복 (팔 앞쪽 근육)
+        reductionRateMap.put("전완근", 0.7); // 하루 지나면 70% 회복 (팔뚝 근육)
+        reductionRateMap.put("종아리", 0.7); // 하루 지나면 70% 회복 (다리 종아리)
+        reductionRateMap.put("전면 삼각근", 0.6); // 하루 지나면 60% 회복 (어깨 앞쪽)
+        reductionRateMap.put("승모근", 0.6); // 하루 지나면 60% 회복 (목과 등 상부 근육)
+        reductionRateMap.put("삼두근", 0.6); // 하루 지나면 60% 회복 (팔 뒤쪽 근육)
+        reductionRateMap.put("후면 삼각근", 0.6); // 하루 지나면 60% 회복 (어깨 뒤쪽)
+        reductionRateMap.put("햄스트링", 0.5); // 하루 지나면 50% 회복 (허벅지 뒤쪽 큰 근육)
+        reductionRateMap.put("측면 삼각근", 0.6); // 하루 지나면 60% 회복 (어깨 옆쪽)
+        reductionRateMap.put("하복부", 0.7); // 하루 지나면 70% 회복 (복부 아래쪽)
+        reductionRateMap.put("측면 복근", 0.7); // 하루 지나면 70% 회복 (옆구리 근육)
+        reductionRateMap.put("전신 지구력", 0.1); // 하루 지나면 90% 회복 (빠른 회복)
+        reductionRateMap.put("전신 근력", 0.5); // 하루 지나면 50% 회복 (전신 근력 운동)
+        reductionRateMap.put("유연성", 0.1); // 하루 지나면 90% 회복 (빠른 회복)
+        reductionRateMap.put("가슴", 0.5); // 하루 지나면 50% 회복 (전체 가슴 근육)
+        reductionRateMap.put("어깨", 0.6); // 하루 지나면 60% 회복 (전체 어깨 근육)
+        reductionRateMap.put("등", 0.6); // 하루 지나면 60% 회복 (전체 등 근육)
+        reductionRateMap.put("회복", 0.1); // 하루 지나면 90% 회복 (회복 관련 운동)
+        reductionRateMap.put("상부 가슴", 0.5); // 하루 지나면 50% 회복 (가슴 상부 근육)
+        reductionRateMap.put("회전근개", 0.6); // 하루 지나면 60% 회복 (어깨 관절 안정 근육)
+        reductionRateMap.put("대흉근", 0.5); // 하루 지나면 50% 회복 (가슴 주요 근육)
+
+        return reductionRateMap;
+    }
 
     private Map<String, Integer> getRecoveryTimeByMuscleGroup() {
         Map<String, Integer> recoveryTimeMap = new HashMap<>();
@@ -811,5 +860,23 @@ public class AnalysisService {
     }
 
 
+    private MuscleFatigueDTO convertToDTO(MuscleFatigue muscleFatigue) {
+        return new MuscleFatigueDTO(
+                muscleFatigue.getMuscleGroup(),
+                muscleFatigue.getFatigueScore(),
+                muscleFatigue.getCalculationDate()
+        );
+    }
+
+    public Map<String, List<MuscleFatigueDTO>> getMuscleFatigueByMemberAndToday(String memberId) {
+        // 오늘 날짜를 기준으로 데이터를 조회
+        LocalDate today = LocalDate.now();
+        List<MuscleFatigue> muscleFatigues = muscleFatigueRepository.findByMemberMemberIdAndCalculationDate(memberId, today);
+
+        // 근육 그룹별로 그룹화하고, DTO로 변환하여 반환
+        return muscleFatigues.stream()
+                .map(this::convertToDTO)  // 엔티티를 DTO로 변환
+                .collect(Collectors.groupingBy(MuscleFatigueDTO::getMuscleGroup));
+    }
 
 }

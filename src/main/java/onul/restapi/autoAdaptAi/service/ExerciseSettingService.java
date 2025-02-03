@@ -1,0 +1,114 @@
+package onul.restapi.autoAdaptAi.service;
+
+import jakarta.transaction.Transactional;
+import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingDTO;
+import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingRequstDTO;
+import onul.restapi.autoAdaptAi.entity.AutoAdaptSettingEntity;
+import onul.restapi.autoAdaptAi.repository.AutoAdaptSettingRepository;
+import onul.restapi.member.entity.Members;
+import onul.restapi.member.repository.MemberRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ExerciseSettingService {
+
+
+
+    private final AutoAdaptSettingRepository autoAdaptSettingRepository;
+    private final MemberRepository memberRepository;
+
+    public ExerciseSettingService(AutoAdaptSettingRepository autoAdaptSettingRepository, MemberRepository memberRepository) {
+        this.autoAdaptSettingRepository = autoAdaptSettingRepository;
+        this.memberRepository = memberRepository;
+    }
+
+    public void autoAdaptDefaultSetting(String memberId) {
+
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        AutoAdaptSettingEntity defaultSetting = AutoAdaptSettingEntity.builder()
+                .member(member)
+                .exerciseGoal("근비대")  // 기본값: 근비대
+                .exerciseSplit(4)  // 기본값: 4분할
+                .difficulty("중급")  // 기본값: 중급
+                .exerciseTime("60분 이하")  // 기본값: 60분 이하
+                .exerciseStyle(List.of("머신", "프리웨이트"))  // 기본값: 머신 + 프리웨이트
+                .excludedParts(null)  // 기본값: 없음 (nullable 허용)
+                .includeCardio(false)  // 기본값: 유산소 운동 제외
+                .build();
+
+        autoAdaptSettingRepository.save(defaultSetting);
+    }
+
+
+    public AutoAdaptSettingDTO selectAutoAdaptSetting(String memberId) {
+
+        // 1. 회원 조회 (예외 처리)
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        // 2. 설정 조회
+        AutoAdaptSettingEntity entity = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
+                .orElse(null);
+
+        // 3. 설정이 없으면 빈 DTO 반환
+        if (entity == null) {
+            return new AutoAdaptSettingDTO(); // ✅ 빈 DTO 반환하여 JSON 파싱 오류 방지
+        }
+
+        // 4. 설정이 있으면 DTO 변환 후 반환
+        return new AutoAdaptSettingDTO(
+                entity.getExerciseGoal(),
+                entity.getExerciseSplit(),
+                entity.getDifficulty(),
+                entity.getExerciseTime(),
+                entity.getExerciseStyle(),
+                entity.getExcludedParts(),
+                entity.isIncludeCardio()
+        );
+    }
+
+
+    @Transactional
+    public void updateAutoAdaptSetting(AutoAdaptSettingRequstDTO request) {
+
+        // 1. 회원 조회 (예외 처리)
+        Members member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+
+        // 2. 기존 자동적응 설정 조회 (Optional 처리)
+        AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member).orElse(null);
+
+        // 3. 빌더 패턴을 활용한 업데이트 (Optional 제거 후 `toBuilder()` 사용)
+        AutoAdaptSettingEntity updatedSetting = (existingSetting != null)
+                ? existingSetting.toBuilder()
+                .exerciseGoal(request.getExerciseGoal())
+                .exerciseSplit(request.getExerciseSplit())
+                .difficulty(request.getDifficulty())
+                .exerciseTime(request.getExerciseTime())
+                .exerciseStyle(request.getExerciseStyle())
+                .excludedParts(request.getExcludedParts())
+                .includeCardio(request.isIncludeCardio())
+                .build()
+                : AutoAdaptSettingEntity.builder()
+                .member(member)
+                .exerciseGoal(request.getExerciseGoal())
+                .exerciseSplit(request.getExerciseSplit())
+                .difficulty(request.getDifficulty())
+                .exerciseTime(request.getExerciseTime())
+                .exerciseStyle(request.getExerciseStyle())
+                .excludedParts(request.getExcludedParts())
+                .includeCardio(request.isIncludeCardio())
+                .build();
+
+        // 4. 저장
+        autoAdaptSettingRepository.save(updatedSetting);
+    }
+
+
+
+}

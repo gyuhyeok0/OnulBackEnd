@@ -1,5 +1,6 @@
 package onul.restapi.member.controller;
 
+import onul.restapi.autoAdaptAi.service.ExerciseSettingService;
 import onul.restapi.common.ErrorResponse;
 import onul.restapi.common.SuccessResponse;
 import onul.restapi.member.dto.MemberDTO;
@@ -23,10 +24,12 @@ public class SignupController {
 
     private final SignupService signupService;
     private final RedisService redisService;
+    private final ExerciseSettingService exerciseSettingService;
 
-    public SignupController(SignupService signupService, RedisService redisService) {
+    public SignupController(SignupService signupService, RedisService redisService, ExerciseSettingService exerciseSettingService) {
         this.signupService = signupService;
         this.redisService = redisService;
+        this.exerciseSettingService = exerciseSettingService;
     }
 
     @PostMapping ("/signup")
@@ -63,6 +66,9 @@ public class SignupController {
                 request.getMemberCountryCode(),
                 request.getMemberPhoneNumber()
         );
+
+
+        exerciseSettingService.autoAdaptDefaultSetting(request.getMemberId());
 
         if (isSignupSuccess) {
             return ResponseEntity.ok()
