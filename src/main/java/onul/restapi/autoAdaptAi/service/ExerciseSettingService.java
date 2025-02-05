@@ -34,6 +34,7 @@ public class ExerciseSettingService {
                 .member(member)
                 .exerciseGoal("근비대")  // 기본값: 근비대
                 .exerciseSplit(4)  // 기본값: 4분할
+                .priorityParts(List.of("자동"))
                 .difficulty("중급")  // 기본값: 중급
                 .exerciseTime("60분 이하")  // 기본값: 60분 이하
                 .exerciseStyle(List.of("머신", "프리웨이트"))  // 기본값: 머신 + 프리웨이트
@@ -64,6 +65,7 @@ public class ExerciseSettingService {
         return new AutoAdaptSettingDTO(
                 entity.getExerciseGoal(),
                 entity.getExerciseSplit(),
+                entity.getPriorityParts(),
                 entity.getDifficulty(),
                 entity.getExerciseTime(),
                 entity.getExerciseStyle(),
@@ -88,6 +90,7 @@ public class ExerciseSettingService {
                 ? existingSetting.toBuilder()
                 .exerciseGoal(request.getExerciseGoal())
                 .exerciseSplit(request.getExerciseSplit())
+                .priorityParts(request.getPriorityParts())
                 .difficulty(request.getDifficulty())
                 .exerciseTime(request.getExerciseTime())
                 .exerciseStyle(request.getExerciseStyle())
@@ -98,6 +101,7 @@ public class ExerciseSettingService {
                 .member(member)
                 .exerciseGoal(request.getExerciseGoal())
                 .exerciseSplit(request.getExerciseSplit())
+                .priorityParts(request.getPriorityParts())
                 .difficulty(request.getDifficulty())
                 .exerciseTime(request.getExerciseTime())
                 .exerciseStyle(request.getExerciseStyle())

@@ -68,7 +68,7 @@ public class AnalysisController {
                 .body(response);
     }
 
-
+    // 주간, 월간 운동 볼륨
     @GetMapping(value = "/WeeklyAndMonthlyExerciseVolume", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> WeeklyAndMonthlyExerciseVolume(@RequestParam("memberId") String memberId) {
 
