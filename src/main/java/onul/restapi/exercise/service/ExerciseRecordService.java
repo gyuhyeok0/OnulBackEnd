@@ -7,21 +7,24 @@ import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
 import onul.restapi.exercise.dto.ExerciseVolumeRequest;
 import onul.restapi.exercise.dto.SetDTO;
-import onul.restapi.exercise.entity.Exercise;
-import onul.restapi.exercise.entity.ExerciseRecord;
-import onul.restapi.exercise.entity.ExerciseServiceNumber;
-import onul.restapi.exercise.entity.ExerciseType;
+import onul.restapi.exercise.entity.*;
 import onul.restapi.exercise.repository.ExerciseRecordRepository;
 import onul.restapi.exercise.repository.ExerciseRepository;
 import onul.restapi.exercise.repository.ExerciseServiceRepository;
 import onul.restapi.exercise.repository.ExerciseTypeRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.util.LinkedHashMap;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -381,5 +384,48 @@ public class ExerciseRecordService {
                 ))
                 .toList();
     }
+
+    // ai db 조회) 최근 6일치 운동 조회
+    public Map<LocalDate, List<AiExerciseRecordDTO>> getRecentExercisesGroupedByDate(String memberId) {
+        // 🔥 1. 최근 6일치 날짜 가져오기 (exercise_service_id = 3)
+        Pageable limit = PageRequest.of(0, 6);
+        List<LocalDate> recentDates = exerciseRecordRepository.findRecent6Days(memberId, limit);
+
+        if (recentDates.isEmpty()) {
+            return Collections.emptyMap(); // 기록이 없으면 빈 맵 반환
+        }
+
+        // 🔥 2. 해당 날짜들의 운동 기록 가져오기 (exercise_service_id = 3)
+        List<ExerciseRecord> records = exerciseRecordRepository.findExercisesByRecentDates(memberId, recentDates);
+
+        // 🔥 3. ExerciseRecord -> AiExerciseRecordDTO 변환 후 날짜별 그룹화 + 중복 운동 제거
+        return records.stream()
+                .map(record -> new AiExerciseRecordDTO(
+                        new ExerciseDto(
+                                record.getExercise().getId(),
+                                record.getExercise().getExerciseName(),
+                                record.getExercise().getMainMuscleGroup(),
+                                record.getExercise().getDetailMuscleGroup(),
+                                record.getExercise().getPopularityGroup(),
+                                record.getExercise().getIsLiked()
+                        ),
+                        record.getRecordDate()
+                ))
+                .collect(Collectors.groupingBy(
+                        AiExerciseRecordDTO::getRecordDate, // ✅ 같은 날짜 내에서 그룹화
+                        LinkedHashMap::new,
+                        Collectors.collectingAndThen(
+                                Collectors.toMap(
+                                        dto -> dto.getExercise().getId(),  // ✅ 운동 ID 기준으로 중복 제거
+                                        dto -> dto,
+                                        (existing, replacement) -> existing, // 중복 시 기존 값 유지
+                                        LinkedHashMap::new
+                                ),
+                                map -> new ArrayList<>(map.values()) // Map -> List 변환
+                        )
+                ));
+
+    }
+
 
 }

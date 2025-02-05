@@ -29,6 +29,12 @@ public class AutoAdaptSettingEntity {
     @Column(nullable = false)
     private int exerciseSplit; // 분할 (1~6분할)
 
+    @ElementCollection
+    @CollectionTable(name = "auto_adapt_exercise_priority", joinColumns = @JoinColumn(name = "settings_id"))
+    @Column(name = "priority")
+    private List<String> priorityParts;
+
+
     @Column(nullable = false)
     private String difficulty; // 난이도 (초급 / 중급 / 고급)
 
@@ -48,6 +54,4 @@ public class AutoAdaptSettingEntity {
     @Column(nullable = false)
     private boolean includeCardio; // 유산소 운동 포함 여부 (기본값 false)
 
-    public void setPriorityParts(List<String> priorityParts) {
-    }
 }

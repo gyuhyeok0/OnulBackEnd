@@ -1,10 +1,13 @@
 package onul.restapi.exercise.repository;
 
 import io.lettuce.core.dynamic.annotation.Param;
+import onul.restapi.exercise.dto.ExerciseRecordDTO;
+import onul.restapi.exercise.entity.AiExerciseRecordDTO;
 import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.entity.ExerciseRecord;
 import onul.restapi.exercise.entity.ExerciseServiceNumber;
 import onul.restapi.member.entity.Members;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -108,4 +111,26 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
 
 
     List<ExerciseRecord> findByMemberMemberIdAndRecordDateBetween(String memberId, LocalDate oneWeekAgo, LocalDate yesterday);
+
+
+    @Query("SELECT DISTINCT er.recordDate FROM ExerciseRecord er " +
+            "JOIN er.exerciseServiceNumber esn " +
+            "WHERE er.member.memberId = :memberId " +
+            "AND esn.id = 3 " + // 🔥 exercise_service_id = 3 추가
+            "AND er.recordDate < CURRENT_DATE " + // 오늘 제외
+            "ORDER BY er.recordDate DESC")
+    List<LocalDate> findRecent6Days(@Param("memberId") String memberId, Pageable pageable);
+
+
+    @Query("SELECT er FROM ExerciseRecord er " +
+            "JOIN er.exerciseServiceNumber esn " +
+            "WHERE er.member.memberId = :memberId " +
+            "AND esn.id = 3 " + // 🔥 exercise_service_id = 3 조건 추가
+            "AND er.recordDate IN :recentDates " + // 🔥 최근 6일 날짜만 조회
+            "ORDER BY er.recordDate DESC")
+    List<ExerciseRecord> findExercisesByRecentDates(
+            @Param("memberId") String memberId,
+            @Param("recentDates") List<LocalDate> recentDates);
+
+
 }

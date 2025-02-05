@@ -8,6 +8,8 @@ import java.util.List;
 public class AutoAdaptSettingDTO {
     private String exerciseGoal;
     private int exerciseSplit;
+    private List<String> priorityParts;
+
     private String difficulty;
     private String exerciseTime;
     private List<String> exerciseStyle;
@@ -17,9 +19,10 @@ public class AutoAdaptSettingDTO {
     public AutoAdaptSettingDTO() {
     }
 
-    public AutoAdaptSettingDTO(String exerciseGoal, int exerciseSplit, String difficulty, String exerciseTime, List<String> exerciseStyle, List<String> excludedParts, boolean includeCardio) {
+    public AutoAdaptSettingDTO(String exerciseGoal, int exerciseSplit, List<String> priorityParts, String difficulty, String exerciseTime, List<String> exerciseStyle, List<String> excludedParts, boolean includeCardio) {
         this.exerciseGoal = exerciseGoal;
         this.exerciseSplit = exerciseSplit;
+        this.priorityParts = priorityParts;
         this.difficulty = difficulty;
         this.exerciseTime = exerciseTime;
         this.exerciseStyle = exerciseStyle;
@@ -41,6 +44,14 @@ public class AutoAdaptSettingDTO {
 
     public void setExerciseSplit(int exerciseSplit) {
         this.exerciseSplit = exerciseSplit;
+    }
+
+    public List<String> getPriorityParts() {
+        return priorityParts;
+    }
+
+    public void setPriorityParts(List<String> priorityParts) {
+        this.priorityParts = priorityParts;
     }
 
     public String getDifficulty() {
@@ -88,6 +99,7 @@ public class AutoAdaptSettingDTO {
         return "AutoAdaptSettingDTO{" +
                 "exerciseGoal='" + exerciseGoal + '\'' +
                 ", exerciseSplit=" + exerciseSplit +
+                ", priorityParts=" + priorityParts +
                 ", difficulty='" + difficulty + '\'' +
                 ", exerciseTime='" + exerciseTime + '\'' +
                 ", exerciseStyle=" + exerciseStyle +
