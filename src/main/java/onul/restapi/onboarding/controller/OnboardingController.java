@@ -1,5 +1,6 @@
 package onul.restapi.onboarding.controller;
 
+import onul.restapi.autoAdaptAi.service.ExerciseSettingService;
 import onul.restapi.onboarding.dto.OnboardingDTO;
 import onul.restapi.onboarding.service.OnboardingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.*;
 public class OnboardingController {
 
     private final OnboardingService onboardingService;
+    private final ExerciseSettingService exerciseSettingService;
 
-    @Autowired
-    public OnboardingController(OnboardingService onboardingService) {
+    public OnboardingController(OnboardingService onboardingService, ExerciseSettingService exerciseSettingService) {
         this.onboardingService = onboardingService;
+        this.exerciseSettingService = exerciseSettingService;
     }
 
     @GetMapping("/check")
@@ -59,6 +61,26 @@ public class OnboardingController {
         if (onboardingRequest.getSquat1rm() < -1 || onboardingRequest.getSquat1rm() > 1000) {
             return ResponseEntity.badRequest().body("스쿼트 1RM은 0 이상 1000 이하이어야 합니다.");
         }
+
+        int total1rm = onboardingRequest.getBenchPress1rm()
+                + onboardingRequest.getDeadlift1rm()
+                + onboardingRequest.getSquat1rm();
+
+        String difficulty;
+
+        if (total1rm < 200) {
+            difficulty = "초급";
+        } else if (total1rm < 300) {
+            difficulty = "중급";
+        } else {
+            difficulty = "고급";
+        }
+
+        System.out.println("난이도: " + difficulty);
+
+
+        // 기본 운동 세팅
+        exerciseSettingService.changeDifficultySetting(onboardingRequest.getMemberId(), difficulty);
 
         try {
             // 요청으로 받은 온보딩 데이터를 처리

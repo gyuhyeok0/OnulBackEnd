@@ -11,4 +11,5 @@ public interface MyExerciseRepository extends JpaRepository<MyExercise, Long> {
 
     MyExercise findByMemberAndMuscleGroup(Members member, String muscleGroup);
 
+    void deleteByMember(Members member);
 }

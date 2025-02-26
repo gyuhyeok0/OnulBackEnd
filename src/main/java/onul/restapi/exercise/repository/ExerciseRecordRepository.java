@@ -133,4 +133,5 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
             @Param("recentDates") List<LocalDate> recentDates);
 
 
+    void deleteByMember(Members member);
 }

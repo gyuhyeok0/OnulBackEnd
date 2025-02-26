@@ -3,12 +3,15 @@ package onul.restapi.autoAdaptAi.service;
 import jakarta.transaction.Transactional;
 import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingDTO;
 import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingRequstDTO;
+import onul.restapi.autoAdaptAi.dto.PriorityPartsRequestDTO;
 import onul.restapi.autoAdaptAi.entity.AutoAdaptSettingEntity;
 import onul.restapi.autoAdaptAi.repository.AutoAdaptSettingRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,6 +116,57 @@ public class ExerciseSettingService {
         autoAdaptSettingRepository.save(updatedSetting);
     }
 
+
+
+    @Transactional
+    public void changePriority(PriorityPartsRequestDTO request) {
+
+        System.out.println("변경할 priorityParts (String): " + request.getPriorityParts());
+        System.out.println("대상 회원 ID: " + request.getMemberId());
+
+        // 1. 회원 조회 (예외 처리)
+        Members member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+
+        // 2. 기존 자동적응 설정 조회 (없으면 예외 처리)
+        AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
+                .orElseThrow(() -> new IllegalArgumentException("AutoAdaptSetting not found for member ID: " + request.getMemberId()));
+
+        // 3. String → List<String> 변환
+        List<String> priorityPartsList = (request.getPriorityParts() == null || request.getPriorityParts().trim().isEmpty())
+                ? Collections.emptyList() // 빈 문자열 또는 null이면 빈 리스트로 처리
+                : Arrays.asList(request.getPriorityParts().split("\\s*,\\s*")); // 쉼표 기준으로 분할 (공백 제거)
+
+        System.out.println("변환된 priorityParts (List): " + priorityPartsList);
+
+        // 4. 기존 설정에서 priorityParts만 변경
+        AutoAdaptSettingEntity updatedSetting = existingSetting.toBuilder()
+                .priorityParts(priorityPartsList) // ✅ 여기서 priorityParts만 업데이트
+                .build();
+
+        // 5. 변경된 엔티티 저장
+        autoAdaptSettingRepository.save(updatedSetting);
+    }
+
+
+    @Transactional
+    public void changeDifficultySetting(String memberId, String difficulty) {
+        // 1. 회원 조회 (예외 처리)
+        Members member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        // 2. 기존 자동적응 설정 조회 (Optional 처리)
+        AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
+                .orElseThrow(() -> new IllegalArgumentException("AutoAdapt setting not found for member: " + memberId));
+
+        // 3. `difficulty`만 업데이트
+        AutoAdaptSettingEntity updatedSetting = existingSetting.toBuilder()
+                .difficulty(difficulty)
+                .build();
+
+        // 4. 저장
+        autoAdaptSettingRepository.save(updatedSetting);
+    }
 
 
 }

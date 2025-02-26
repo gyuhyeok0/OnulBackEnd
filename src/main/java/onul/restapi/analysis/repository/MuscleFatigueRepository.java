@@ -1,6 +1,7 @@
 package onul.restapi.analysis.repository;
 
 import onul.restapi.analysis.entity.MuscleFatigue;
+import onul.restapi.member.entity.Members;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +21,7 @@ public interface MuscleFatigueRepository extends JpaRepository<MuscleFatigue, Lo
     List<MuscleFatigue> findByMemberMemberIdAndCalculationDate(String memberId, LocalDate calculationDate);
 
     MuscleFatigue findByMemberMemberIdAndMuscleGroupAndCalculationDate(String memberId, String muscleGroup, LocalDate today);
+
+    void deleteByMember(Members member);
 
 }

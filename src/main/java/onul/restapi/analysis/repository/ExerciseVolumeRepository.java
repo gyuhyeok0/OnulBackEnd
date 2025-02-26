@@ -3,6 +3,7 @@ package onul.restapi.analysis.repository;
 import io.lettuce.core.dynamic.annotation.Param;
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
 import onul.restapi.analysis.entity.ExerciseVolumeStatsEntity;
+import onul.restapi.member.entity.Members;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -38,4 +39,7 @@ public interface ExerciseVolumeRepository extends JpaRepository<ExerciseVolumeSt
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+
+    void deleteByMember(Members member);
 }

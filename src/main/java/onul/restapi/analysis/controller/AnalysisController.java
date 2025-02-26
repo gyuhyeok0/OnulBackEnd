@@ -28,24 +28,26 @@ public class AnalysisController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateAnalysis(@RequestParam("memberId") String memberId) {
+    public ResponseEntity<?> updateAnalysis(
+            @RequestParam("memberId") String memberId,
+            @RequestParam("date") LocalDate date) {
 
         try {
             // 일별 운동량 통계 업데이트
             try {
-                analysisService.updateVolumeStatistics(memberId);
+                analysisService.updateVolumeStatistics(memberId, date);
             } catch (Exception e) {
             }
 
             // 몸무게 및 식단 통계
             try {
-                analysisService.updateWeightAndDietStatistics(memberId);
+                analysisService.updateWeightAndDietStatistics(memberId, date);
             } catch (Exception e) {
             }
 
             // 근육피로도
             try {
-                analysisService.updateMuscleFatigue(memberId);
+                analysisService.updateMuscleFatigue(memberId, date);
             } catch (Exception e) {
             }
 
@@ -92,11 +94,10 @@ public class AnalysisController {
 
 
     @GetMapping(value = "/getMuscleFaigue", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getMuscleFatigue(@RequestParam("memberId") String memberId) {
+    public ResponseEntity<?> getMuscleFatigue(@RequestParam("memberId") String memberId, @RequestParam("date") LocalDate date) {
 
-        System.out.println("안녕"+ memberId);
         // 서비스에서 오늘 날짜 기준의 데이터를 조회하고 그룹화된 결과를 받아옴
-        Map<String, List<MuscleFatigueDTO>> response = analysisService.getMuscleFatigueByMemberAndToday(memberId);
+        Map<String, List<MuscleFatigueDTO>> response = analysisService.getMuscleFatigueByMemberAndToday(memberId, date);
 
         // 응답을 JSON 형태로 반환
         return ResponseEntity.ok()

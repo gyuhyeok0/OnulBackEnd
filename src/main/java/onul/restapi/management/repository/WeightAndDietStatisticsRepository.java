@@ -15,4 +15,6 @@ public interface WeightAndDietStatisticsRepository extends JpaRepository<WeightA
     WeightAndDietStatistics findByMemberAndDate(Members member, LocalDate date);
 
     List<WeightAndDietStatistics> findByMember_MemberIdAndDateAfter(String memberId, LocalDate startOfMonth);
+
+    void deleteByMember(Members member);
 }

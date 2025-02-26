@@ -12,4 +12,6 @@ public interface IntensityRepository extends JpaRepository<IntensityEntity, Long
 
     // Members 엔티티와 createdAt을 기준으로 IntensityEntity 조회
     IntensityEntity findByMemberAndCreatedAt(Members member, Date createdAt);
+
+    void deleteByMember(Members member);
 }

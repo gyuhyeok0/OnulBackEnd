@@ -50,6 +50,7 @@ public class SmsService {
     // 인증코드 전송
     public SmsResponse sendSms(String phoneNumber, boolean skipPhoneNumberCheck) {
 
+
         String hashedPhoneNumber = hashPhoneNumber(phoneNumber); // 전화번호 해시화
         long currentTime = System.currentTimeMillis();
 

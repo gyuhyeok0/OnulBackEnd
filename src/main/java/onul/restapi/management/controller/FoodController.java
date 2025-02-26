@@ -69,6 +69,8 @@ public class FoodController {
 
     @PostMapping(value = "/saveTotalFoodData", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SavedFoodDataResponse> saveTotalFoodData(@RequestBody SaveTotalFoodDataRequest request) {
+
+        System.out.println("호출");
         try {
             // DB에 데이터 저장
             SavedFoodDataResponse savedData = foodService.saveTotalFoodData(request);
