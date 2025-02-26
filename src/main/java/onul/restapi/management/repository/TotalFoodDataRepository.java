@@ -21,6 +21,8 @@ public interface TotalFoodDataRepository extends JpaRepository<TotalFoodData, Lo
 
     List<TotalFoodData> findByMemberAndDateBetween(Members member, LocalDate monthStart, LocalDate monthEnd);
 
+    void deleteByMember(Members member);
+
 
     // 필요한 쿼리 메서드를 추가할 수 있습니다.
 }

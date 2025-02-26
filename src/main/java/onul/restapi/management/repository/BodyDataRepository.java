@@ -19,4 +19,6 @@ public interface BodyDataRepository extends JpaRepository<BodyDataEntity, Long> 
     Optional<Object> findByMember_MemberIdAndDate(String memberId, LocalDate date);
 
     List<BodyDataEntity> findByMemberAndDateBetween(Members member, LocalDate monthStart, LocalDate monthEnd);
+
+    void deleteByMember(Members member);
 }

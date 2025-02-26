@@ -37,6 +37,7 @@ public class ExerciseRecord {
     @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false)
     private Members member; // 회원 정보
 
+
     @Column(nullable = false)
     private int setNumber; // 세트 번호
 

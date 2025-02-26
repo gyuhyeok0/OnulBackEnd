@@ -12,4 +12,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Optional<Schedule> findByMemberAndWeekTypeAndDayAndPart(Members member, String weekType, String day, String part);
 
     List<Schedule> findAllByMember(Members member);
+
+    void deleteByMember(Members member);
 }

@@ -19,4 +19,6 @@ public interface FoodItemEntityRepository extends JpaRepository<FoodItemEntity, 
     List<FoodEntity> findByMember(Members member);
 
     List<FoodItemEntity> findByFoodEntity(FoodEntity foodEntity);
+
+    void deleteByMember(Members member);
 }

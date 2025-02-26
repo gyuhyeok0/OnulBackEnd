@@ -68,6 +68,8 @@ public class SignupController {
         );
 
 
+
+        // 기본 운동 세팅
         exerciseSettingService.autoAdaptDefaultSetting(request.getMemberId());
 
         if (isSignupSuccess) {

@@ -70,16 +70,13 @@ public class AnalysisService {
         this.exerciseGroupVolumeStatsRepository = exerciseGroupVolumeStatsRepository;
     }
 
-    public void updateVolumeStatistics(String memberId) {
+    public void updateVolumeStatistics(String memberId, LocalDate today) {
 
         Members member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
 
         // 1. 기존 저장된 통계 가져오기
         Optional<LocalDate> lastSavedDate = exerciseVolumeRepository.findLatestRecordDateByMemberId(member.getMemberId());
-
-        // 오늘 날짜 계산
-        LocalDate today = LocalDate.now();
 
         // 2. 새 데이터 가져오기 (이전 저장 날짜 이후 데이터만)
         List<ExerciseRecord> newRecords;
@@ -344,14 +341,12 @@ public class AnalysisService {
 
 
 
-    public void updateWeightAndDietStatistics(String memberId) {
+    public void updateWeightAndDietStatistics(String memberId, LocalDate today) {
 
         // 1. 회원 정보 가져오기
         Members member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
 
-        // 2. 이전 달의 첫 번째 날과 이번 달의 마지막 날 계산
-        LocalDate today = LocalDate.now();
         // 이전 달의 첫 번째 날
         LocalDate monthStart = today.minusMonths(1).withDayOfMonth(1);
 
@@ -449,14 +444,16 @@ public class AnalysisService {
     }
 
 
-    public void updateMuscleFatigue(String memberId) {
+    public void updateMuscleFatigue(String memberId, LocalDate clientDate) {
         // 1. 회원 정보 가져오기
         Members member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
 
+
         // 2. 최근 운동 기록 가져오기 (오늘 날짜 제외)
-        LocalDate oneWeekAgo = LocalDate.now().minusDays(7);
-        LocalDate yesterday = LocalDate.now().minusDays(1); // 어제 날짜
+        LocalDate oneWeekAgo = clientDate.minusDays(7);
+        LocalDate yesterday = clientDate.minusDays(1);
+
 
         List<ExerciseRecord> recentRecords = exerciseRecordRepository
                 .findByMemberMemberIdAndRecordDateBetween(memberId, oneWeekAgo, yesterday);
@@ -503,18 +500,20 @@ public class AnalysisService {
         // 5. 근육 그룹별 회복 시간 정의
         Map<String, Integer> recoveryTimeByMuscleGroup = getRecoveryTimeByMuscleGroup();
 
-// 6. 날짜별 근육 그룹 피로도 계산
+        // 6. 날짜별 근육 그룹 피로도 계산
         Map<LocalDate, Map<String, Double>> dailyMuscleFatigue = new HashMap<>();
         DecimalFormat df = new DecimalFormat("0.00"); // 소숫점 2자리로 포맷 지정
 
         for (Map.Entry<LocalDate, Map<String, Double>> entry : dailyMuscleGroupVolume.entrySet()) {
             LocalDate date = entry.getKey();
+            System.out.println("date1: " + date);
             Map<String, Double> muscleGroupVolume = entry.getValue();
 
             Map<String, Double> muscleFatigue = new HashMap<>();
 
             // 오늘 날짜와의 차이를 계산
-            long daysSinceExercise = ChronoUnit.DAYS.between(date, LocalDate.now());
+            long daysSinceExercise = ChronoUnit.DAYS.between(date, clientDate);
+
 
             for (Map.Entry<String, Double> muscleEntry : muscleGroupVolume.entrySet()) {
                 String muscleGroup = muscleEntry.getKey();
@@ -559,14 +558,14 @@ public class AnalysisService {
         });
 
 
-        // 8. MuscleFatigue 엔티티 저장
-        LocalDate today = LocalDate.now(); // 오늘 날짜
+
+        System.out.println("today2: " + clientDate);
         List<MuscleFatigue> muscleFatigueList = new ArrayList<>();
 
         weeklyAverageFatigue.forEach((muscleGroup, averageFatigue) -> {
             // 존재 여부 확인
             MuscleFatigue existingRecord = muscleFatigueRepository.findByMemberMemberIdAndMuscleGroupAndCalculationDate(
-                    member.getMemberId(), muscleGroup, today);
+                    member.getMemberId(), muscleGroup, clientDate);
 
             if (existingRecord != null) {
                 // 기존 데이터 업데이트
@@ -582,7 +581,7 @@ public class AnalysisService {
                         .fatigueScore(BigDecimal.valueOf(averageFatigue)
                                 .setScale(2, RoundingMode.HALF_UP)
                                 .doubleValue())
-                        .calculationDate(today)
+                        .calculationDate(clientDate)
                         .build();
 
                 muscleFatigueList.add(muscleFatigue);
@@ -868,9 +867,8 @@ public class AnalysisService {
         );
     }
 
-    public Map<String, List<MuscleFatigueDTO>> getMuscleFatigueByMemberAndToday(String memberId) {
+    public Map<String, List<MuscleFatigueDTO>> getMuscleFatigueByMemberAndToday(String memberId, LocalDate today) {
         // 오늘 날짜를 기준으로 데이터를 조회
-        LocalDate today = LocalDate.now();
         List<MuscleFatigue> muscleFatigues = muscleFatigueRepository.findByMemberMemberIdAndCalculationDate(memberId, today);
 
         // 근육 그룹별로 그룹화하고, DTO로 변환하여 반환

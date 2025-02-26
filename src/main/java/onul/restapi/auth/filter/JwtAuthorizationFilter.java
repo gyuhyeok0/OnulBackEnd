@@ -32,7 +32,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final TokenUtils tokenUtils;
 
     // 초당 최대 요청 수
-    private static final int MAX_REQUESTS_PER_SECOND = 10;
+    private static final int MAX_REQUESTS_PER_SECOND = 20;
     private static final long TIME_WINDOW = TimeUnit.SECONDS.toMillis(1);  // 1초 윈도우
 
     private static Map<String, Long> requestCount = new HashMap<>();
@@ -49,6 +49,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         // API 호출을 제외할 URL 패턴 설정
         List<String> roleLeessList = Arrays.asList(
+
+                "/auth/autoAdapt",
+
                 "/auth/refresh",
                 "/inspection/(.*)",
                 "/privacy-policy.html",

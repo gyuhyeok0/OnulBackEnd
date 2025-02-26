@@ -90,8 +90,8 @@ public class ExerciseRecordService {
         }
 
         // 오늘 날짜 설정
-        LocalDate today = LocalDate.now();
-        exerciseRecord.setRecordDate(today);
+        LocalDate today = exerciseRecord.getRecordDate();
+        System.out.println("클라이언트에서 받아온 시간"+ today);
 
         // 엔티티 조회
         Members member = memberRepository.findById(exerciseRecord.getMemberId())
@@ -153,7 +153,7 @@ public class ExerciseRecordService {
 
         System.out.println("서비스 숫자"+exerciseRecord.getExerciseService());
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = exerciseRecord.getRecordDate();
 
         Members member = memberRepository.findById(exerciseRecord.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));

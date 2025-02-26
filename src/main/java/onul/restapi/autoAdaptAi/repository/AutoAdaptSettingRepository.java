@@ -14,4 +14,5 @@ public interface AutoAdaptSettingRepository extends JpaRepository<AutoAdaptSetti
     Optional<Object> findByMember(Members member);
 
 
+    void deleteByMember(Members member);
 }

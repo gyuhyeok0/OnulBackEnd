@@ -1,6 +1,7 @@
 package onul.restapi.analysis.repository;
 
 import onul.restapi.analysis.entity.ExerciseGroupVolumeStatsEntity;
+import onul.restapi.member.entity.Members;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,6 @@ public interface ExerciseGroupVolumeStatsRepository extends JpaRepository<Exerci
 
     ExerciseGroupVolumeStatsEntity findByMember_MemberIdAndPeriodTypeAndMainMuscleGroupAndStartDate(String memberId, String weekly, String muscleGroup, LocalDate startOfWeek);
 
+
+    void deleteByMember(Members member);
 }
