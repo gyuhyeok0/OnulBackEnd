@@ -522,8 +522,9 @@ public class AnalysisService {
                 // 회복 시간 가져오기 (기본값: 48시간)
                 int recoveryTime = recoveryTimeByMuscleGroup.getOrDefault(muscleGroup, 48);
 
-                // 피로도 계산: 볼륨 × (1 ÷ 회복 시간)
-                double fatigue = volume * (1.0 / recoveryTime);
+                // 수정 코드: 기본 피로도 3 추가
+                double baseFatigue = 3.0;
+                double fatigue = baseFatigue + (volume * (1.0 / recoveryTime));
 
                 // 회복 비율 가져오기 (기본값: 90% 감소)
                 double reductionRate = getFatigueReductionRateByMuscleGroup().getOrDefault(muscleGroup, 0.1);

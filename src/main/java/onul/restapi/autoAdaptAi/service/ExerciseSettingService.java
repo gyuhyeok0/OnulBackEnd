@@ -36,7 +36,7 @@ public class ExerciseSettingService {
         AutoAdaptSettingEntity defaultSetting = AutoAdaptSettingEntity.builder()
                 .member(member)
                 .exerciseGoal("근비대")  // 기본값: 근비대
-                .exerciseSplit(4)  // 기본값: 4분할
+                .exerciseSplit(3)  // 기본값: 4분할
                 .priorityParts(List.of("자동"))
                 .difficulty("중급")  // 기본값: 중급
                 .exerciseTime("60분 이하")  // 기본값: 60분 이하
@@ -167,6 +167,38 @@ public class ExerciseSettingService {
         // 4. 저장
         autoAdaptSettingRepository.save(updatedSetting);
     }
+
+
+    @Transactional
+    public void updatePriorityDefaltSetting(PriorityPartsRequestDTO request) {
+
+        System.out.println("오늘 운동이 없을때 자동으로 초기화");
+
+        // 1. 회원 조회 (예외 처리)
+        Members member = memberRepository.findById(request.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+
+        // 2. 기존 자동적응 설정 조회 (없으면 예외 처리)
+        AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
+                .orElseThrow(() -> new IllegalArgumentException("AutoAdaptSetting not found for member ID: " + request.getMemberId()));
+
+        // 3. String → List<String> 변환
+        List<String> priorityPartsList = (request.getPriorityParts() == null || request.getPriorityParts().trim().isEmpty())
+                ? Collections.emptyList() // 빈 문자열 또는 null이면 빈 리스트로 처리
+                : Arrays.asList(request.getPriorityParts().split("\\s*,\\s*")); // 쉼표 기준으로 분할 (공백 제거)
+
+        System.out.println("변환된 priorityParts (List): " + priorityPartsList);
+
+        // 4. 기존 설정에서 priorityParts만 변경
+        AutoAdaptSettingEntity updatedSetting = existingSetting.toBuilder()
+                .priorityParts(priorityPartsList) // ✅ 여기서 priorityParts만 업데이트
+                .build();
+
+        // 5. 변경된 엔티티 저장
+        autoAdaptSettingRepository.save(updatedSetting);
+
+    }
+
 
 
 }

@@ -61,7 +61,6 @@ public class AutoAdaptAiController {
     @PostMapping(value = "/updateAutoAdaptSetting", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> updateAutoAdaptSetting(@RequestBody AutoAdaptSettingRequstDTO request) {
 
-        System.out.println("durlghkrdls"+request);
         try {
             exerciseSettingService.updateAutoAdaptSetting(request);
 
@@ -99,6 +98,7 @@ public class AutoAdaptAiController {
     @PostMapping(value = "/aiRequest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> requestAiRecommendation(@RequestBody AutoAdaptRequestDTO request, @RequestParam("date") LocalDate date) throws JsonProcessingException {
 
+        System.out.println("ai 요청이요");
         // true: 생성할때 "자동" 으로만 넣어야해
         System.out.println(request.isInitialization());
 
@@ -218,12 +218,26 @@ public class AutoAdaptAiController {
     @PostMapping(value = "/autoAdaptExercises", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> autoAdaptExercises(@RequestBody AutoAdaptDTO request) {
         try {
-            System.out.println("안녕시발아");
-            System.out.println(request);
+            System.out.println("오늘 운동 검색");
+            System.out.println(request.getDate());
+            System.out.println(request.getMemberId());
+
+            String memberId = request.getMemberId();
 
             // ✅ 운동 리스트 조회
             List<Exercise> exercises = autoAdaptService.getExercises(request);
-            System.out.println(exercises);
+
+            if (exercises.isEmpty()) {
+                System.out.println("오늘 운동이 없습니다");
+
+                PriorityPartsRequestDTO requestDTO = new PriorityPartsRequestDTO();
+
+                requestDTO.setMemberId(memberId);
+                requestDTO.setPriorityParts("자동");
+
+                exerciseSettingService.updatePriorityDefaltSetting(requestDTO);
+
+            }
 
             // ✅ 성공 시 운동 리스트를 JSON으로 반환
             return ResponseEntity.ok()

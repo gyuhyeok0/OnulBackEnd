@@ -12,7 +12,7 @@ import java.util.List;
 public class AutoAdaptSettingRequstDTO {
     private String memberId;          // 회원 ID
     private String exerciseGoal;      // 운동 목표 (예: 근비대, 체지방 감소)
-    private int exerciseSplit;        // 운동 분할 (예: 4분할)
+    private int exerciseSplit;        // 운동 분할 (예: 3분할)
     private List<String> priorityParts; // 제외할 부위 (예: ["어깨"])
 
     private String difficulty;        // 운동 난이도 (예: 초급, 중급, 고급)
