@@ -52,6 +52,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
                 "/auth/autoAdapt",
 
+                "/analysis/update",
+                "/appVersion/(.*)",
                 "/auth/refresh",
                 "/inspection/(.*)",
                 "/privacy-policy.html",
