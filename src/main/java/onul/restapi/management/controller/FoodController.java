@@ -36,8 +36,6 @@ public class FoodController {
     public ResponseEntity<?> deleteFoodData(@RequestParam String memberId, @RequestParam String recipeId) {
         try {
 
-            System.out.println(memberId);
-            System.out.println(recipeId);
             foodService.deleteFoodData(memberId, recipeId);
             return ResponseEntity.ok("Food data deleted successfully");
         } catch (Exception e) {
@@ -57,7 +55,6 @@ public class FoodController {
                 return ResponseEntity.status(404).body("데이터가 존재하지 않습니다.");
             }
 
-            System.out.println(foodData);
             return ResponseEntity.ok(foodData);
 
         } catch (Exception e) {
@@ -70,12 +67,10 @@ public class FoodController {
     @PostMapping(value = "/saveTotalFoodData", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SavedFoodDataResponse> saveTotalFoodData(@RequestBody SaveTotalFoodDataRequest request) {
 
-        System.out.println("호출");
         try {
             // DB에 데이터 저장
             SavedFoodDataResponse savedData = foodService.saveTotalFoodData(request);
 
-            System.out.println(savedData);
             // 저장된 데이터를 클라이언트로 반환
             return ResponseEntity.ok(savedData);
         } catch (Exception e) {
@@ -88,13 +83,10 @@ public class FoodController {
     public ResponseEntity<?> getFoodRecordsForDate(@RequestBody @Valid RecordRequest request) {
         try {
             // 요청 데이터 확인
-            System.out.println("Received memberId: " + request.getMemberId());
-            System.out.println("Received recordDate: " + request.getDate());
 
             // 서비스 호출
             List<SavedFoodDataResponse> records = foodService.getFoodRecordsForDate(request.getMemberId(), request.getDate());
 
-//            System.out.println("조회된 기록: " + records);
 
             // JSON 형태로 응답 반환
             return ResponseEntity.ok()

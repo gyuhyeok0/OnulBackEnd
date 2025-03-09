@@ -1,6 +1,5 @@
 package onul.restapi.member.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.analysis.repository.ExerciseGroupVolumeStatsRepository;
 import onul.restapi.analysis.repository.ExerciseVolumeRepository;
 import onul.restapi.analysis.repository.MuscleFatigueRepository;
@@ -17,6 +16,7 @@ import onul.restapi.member.repository.SignupMember;
 import onul.restapi.onboarding.rapository.OnboardingRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.logging.Logger;
 
@@ -74,7 +74,6 @@ public class DeleteAccountService {
 
     @Transactional
     public void deleteAccount(String memberId) {
-        System.out.println("회원 삭제 요청: " + memberId);
 
         // 🔥 1. 회원 존재 여부 확인
         Members member = memberRepository.findById(memberId)
@@ -105,7 +104,6 @@ public class DeleteAccountService {
         // 🔥 4. 최종적으로 회원 삭제
         memberRepository.deleteById(memberId);
 
-        System.out.println("회원 삭제 완료: " + memberId);
     }
 
 

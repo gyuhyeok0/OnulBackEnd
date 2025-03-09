@@ -24,14 +24,12 @@ public class TokenService {
 
         // 2. 리프레시 토큰이 존재하는지 확인
         if (redisService.getRefreshToken(memberId) == null) {
-            System.out.println("리프레시 토큰이 존재하지 않습니다.");
 
             return null; // null 반환
         }
 
         // 3. 새로운 액세스 토큰 생성
         String newAccessToken = tokenUtils.generateJwtToken(member); // 액세스 토큰 생성
-        System.out.println("jwt 생성됐나요? " + newAccessToken);
 
 
 

@@ -21,7 +21,6 @@ public class DeleteAccountController {
 
     @PostMapping(value = "/deleteAccount", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> deleteAccount(@RequestParam("memberId") String memberId) {
-        System.out.println("회원 탈퇴 요청 받음: " + memberId);
 
         try {
             deleteAccountService.deleteAccount(memberId);

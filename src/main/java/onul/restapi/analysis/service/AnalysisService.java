@@ -1,5 +1,4 @@
 package onul.restapi.analysis.service;
-
 import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.dto.MuscleFatigueDTO;
@@ -36,6 +35,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.stream.IntStream;
 
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 public class AnalysisService {
@@ -70,6 +71,7 @@ public class AnalysisService {
         this.exerciseGroupVolumeStatsRepository = exerciseGroupVolumeStatsRepository;
     }
 
+    @Transactional
     public void updateVolumeStatistics(String memberId, LocalDate today) {
 
         Members member = memberRepository.findById(memberId)
@@ -162,8 +164,6 @@ public class AnalysisService {
         });
 
 //        // 결과 출력
-//        System.out.println("주간 날짜 배열: " + weekDates);
-//        System.out.println("월간 날짜 배열: " + monthDates);
 
         // 주간 및 월간 볼륨 합산 결과를 저장할 Map
         Map<LocalDate, Map<String, Double>> weeklyVolumes = new HashMap<>();
@@ -340,7 +340,7 @@ public class AnalysisService {
 
 
 
-
+    @Transactional
     public void updateWeightAndDietStatistics(String memberId, LocalDate today) {
 
         // 1. 회원 정보 가져오기
@@ -444,6 +444,7 @@ public class AnalysisService {
     }
 
 
+    @Transactional
     public void updateMuscleFatigue(String memberId, LocalDate clientDate) {
         // 1. 회원 정보 가져오기
         Members member = memberRepository.findById(memberId)
@@ -506,7 +507,6 @@ public class AnalysisService {
 
         for (Map.Entry<LocalDate, Map<String, Double>> entry : dailyMuscleGroupVolume.entrySet()) {
             LocalDate date = entry.getKey();
-            System.out.println("date1: " + date);
             Map<String, Double> muscleGroupVolume = entry.getValue();
 
             Map<String, Double> muscleFatigue = new HashMap<>();
@@ -560,7 +560,6 @@ public class AnalysisService {
 
 
 
-        System.out.println("today2: " + clientDate);
         List<MuscleFatigue> muscleFatigueList = new ArrayList<>();
 
         weeklyAverageFatigue.forEach((muscleGroup, averageFatigue) -> {
@@ -677,6 +676,7 @@ public class AnalysisService {
         return recoveryTimeMap;
     }
 
+    @Transactional(readOnly = true)
     public ExerciseVolumeResponse getExerciseVolume(String memberId, LocalDate startDate, LocalDate endDate) {
         // 1️⃣ startDate ~ endDate 기간 동안 운동 데이터 조회
         List<ExerciseVolumeStatsEntity> records = exerciseVolumeRepository
@@ -772,6 +772,7 @@ public class AnalysisService {
     }
 
 
+    @Transactional(readOnly = true)
     public ExerciseVolumeDataResponse getWeeklyAndMonthlyVolume(String memberId) {
 
         LocalDate today = LocalDate.now();
@@ -826,6 +827,7 @@ public class AnalysisService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     public List<WeightAndDietStatisticsDTO> getMonthlyStatistics(String memberId) {
         LocalDate today = LocalDate.now();
         List<WeightAndDietStatisticsDTO> statisticsList = new ArrayList<>();
@@ -868,6 +870,7 @@ public class AnalysisService {
         );
     }
 
+    @Transactional(readOnly = true)
     public Map<String, List<MuscleFatigueDTO>> getMuscleFatigueByMemberAndToday(String memberId, LocalDate today) {
         // 오늘 날짜를 기준으로 데이터를 조회
         List<MuscleFatigue> muscleFatigues = muscleFatigueRepository.findByMemberMemberIdAndCalculationDate(memberId, today);

@@ -26,13 +26,10 @@ public class BodyController {
     public ResponseEntity<?> saveBodyData(@RequestBody BodyDataRequest request) {
         try {
             // 데이터 확인
-            System.out.println("Received memberId: " + request.getMemberId());
-            System.out.println("Received bodyData: " + request.getBodyData());
 
             // 서비스 호출
             BodyDataDto result = bodyService.saveBodyData(request.getMemberId(), request.getBodyData());
 
-            System.out.println("저장된 데이터: " + result);
 
             // JSON 형태로 응답 반환
             return ResponseEntity.ok()
@@ -51,13 +48,10 @@ public class BodyController {
     public ResponseEntity<?> getFoodRecordsForDate(@RequestBody @Valid RecordRequest request) {
         try {
             // 요청 데이터 확인
-            System.out.println("Received memberId: " + request.getMemberId());
-            System.out.println("Received recordDate: " + request.getDate());
 
             // 서비스 호출
             BodyDataDto records = bodyService.getBodyRecordsForDate(request.getMemberId(), request.getDate());
 
-//            System.out.println("조회된 기록: " + records);
 
             // JSON 형태로 응답 반환
             return ResponseEntity.ok()

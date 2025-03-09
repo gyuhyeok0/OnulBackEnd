@@ -1,12 +1,12 @@
 package onul.restapi.exercise.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.exercise.dto.ScheduleDTO;
 import onul.restapi.exercise.entity.Schedule;
 import onul.restapi.exercise.repository.ScheduleRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +24,8 @@ public class ScheduleService {
         this.memberRepository = memberRepository;
     }
 
+
+    @Transactional
     public void saveOrUpdateSchedule(ScheduleDTO scheduleDTO) {
         // Member 찾기 (예: 회원 ID로 조회)
         Members member = memberRepository.findById(scheduleDTO.getMemberId())

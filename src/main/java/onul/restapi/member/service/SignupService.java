@@ -1,12 +1,12 @@
 package onul.restapi.member.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.member.entity.MemberStatus;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.entity.UserConsentState;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,7 +59,6 @@ public class SignupService {
     // 해시 함수 수정
     public String hashPhoneNumber(String phoneNumber) {
 
-        System.out.println("회원가입 시 해쉬코드: " + phoneNumber);
 
         String normalizedPhoneNumber = normalizePhoneNumber(phoneNumber); // 전화번호 정규화
         try {
@@ -107,6 +106,7 @@ public class SignupService {
 
 
     // 비밀번호 재설정
+    @Transactional
     public boolean updatePassword(String memberId, String memberPassword) {
         // 사용자 ID로 해당 사용자를 찾습니다.
         Optional<Members> memberOpt = Optional.ofNullable(memberRepository.findByMemberId(memberId));

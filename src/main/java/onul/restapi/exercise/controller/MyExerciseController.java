@@ -52,7 +52,6 @@ public class MyExerciseController {
     @PostMapping("/RegistMyExercise")
     public ResponseEntity<?> registerExercises(@RequestBody MyExerciseDTO myExerciseDTO) {
 
-        System.out.println("컨트롤러"+ myExerciseDTO);
         try {
 
             // DTO에서 회원 ID와 운동 목록을 가져와서 등록 처리

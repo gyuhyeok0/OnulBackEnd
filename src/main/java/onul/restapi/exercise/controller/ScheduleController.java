@@ -47,7 +47,6 @@ public class ScheduleController {
     @DeleteMapping("/deleteSchedule")
     public ResponseEntity<?> deleteSchedule(@RequestBody ScheduleDTO scheduleDTO) {
 
-        System.out.println("여기"+scheduleDTO);
         if (scheduleDTO.getWeekType() == null || scheduleDTO.getDay() == null || scheduleDTO.getPart() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.APPLICATION_JSON)

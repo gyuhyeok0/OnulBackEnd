@@ -24,7 +24,6 @@ public class SubmitExerciseController {
             @RequestBody ExerciseRecordDTO exerciseRecordDTO,
             @RequestParam("date") LocalDate date) {
 
-        System.out.println("클라이언트 시간 "+date);
 
         exerciseRecordDTO.setRecordDate(date);
 
@@ -52,7 +51,6 @@ public class SubmitExerciseController {
             @RequestBody ExerciseRecordDTO exerciseRecordDTO,
             @RequestParam("date") LocalDate date){
 
-        System.out.println(date);
         exerciseRecordDTO.setRecordDate(date);
 
         try {

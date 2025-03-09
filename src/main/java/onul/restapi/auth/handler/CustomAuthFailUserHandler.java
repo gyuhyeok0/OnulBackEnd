@@ -34,7 +34,6 @@ public class CustomAuthFailUserHandler implements AuthenticationFailureHandler {
         String failMsg = exceptionMessages.getOrDefault(exception.getClass(), "정의되어 있지 않는 케이스의 오류입니다");
 
         // 터미널에 로그 출력
-        System.out.println("Authentication failed: " + failMsg);
 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");

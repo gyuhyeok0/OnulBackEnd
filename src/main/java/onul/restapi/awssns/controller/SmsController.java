@@ -66,22 +66,17 @@ public class SmsController {
         String phoneNumber = verificationRequest.getPhoneNumber();
         String code = verificationRequest.getCode();
 
-        System.out.println("실행중" + phoneNumber);
 
         // 전화번호 해시화
         String hashedPhoneNumber = smsService.hashPhoneNumber(phoneNumber);
 
-        System.out.println("전화번호 해쉬번호" + hashedPhoneNumber);
 
         // 해시화된 전화번호로 코드 엔티티 조회
         Optional<CodeEntity> codeEntityOptional = Optional.ofNullable(codeRepository.findByPhoneNumber(hashedPhoneNumber));
 
-        System.out.println(codeEntityOptional.isPresent());
-        System.out.println(code);
 
         // 전화번호가 없으면 반환 (true)
         if (codeEntityOptional.isEmpty()) {
-            System.out.println("전화번호가 존재하지 않습니다");
             return "Invalid phone number";
         }
 
@@ -104,7 +99,6 @@ public class SmsController {
     @PostMapping("/check-id")
     public ResponseEntity<UserResponse> checkUserId(@RequestBody UserIdRequest request) {
         String userId = request.getUserId(); // 아이디 가져오기
-        System.out.println(request);
 
         // 아이디로 회원 조회
         Members member = memberRepository.findByMemberId(userId);
@@ -123,8 +117,6 @@ public class SmsController {
         String userId = smsRequest.getMemberId();
         String inputPhoneNumber = smsRequest.getPhoneNumber();
 
-        System.out.println(userId);
-        System.out.println(inputPhoneNumber);
 
         // 아이디로 회원 조회
         Members member = memberRepository.findByMemberId(userId);
@@ -138,10 +130,8 @@ public class SmsController {
 
         // 저장된 해시 전화번호 가져오기
         String storedHashedPhoneNumber = member.getMemberPhoneNumber();
-        System.out.println("Hashed phone number from database: " + storedHashedPhoneNumber);
 
         if (!hashedPhoneNumber.equals(storedHashedPhoneNumber)) {
-            System.out.println("Phone number does not match for userId: " + userId);
             return ResponseEntity.status(HttpStatus.FORBIDDEN) // 또는 HttpStatus.NOT_FOUND
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(new SmsResponse("PHONE_NOT_REGISTERED")); // 상태 코드로 전송

@@ -1,12 +1,12 @@
 package onul.restapi.management.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.management.dto.BodyDataDto;
 import onul.restapi.management.entity.BodyDataEntity;
 import onul.restapi.management.repository.BodyDataRepository;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import onul.restapi.member.entity.Members;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -84,7 +84,6 @@ public class BodyService {
         );
     }
 
-    @Transactional
     public BodyDataDto getBodyRecordsForDate(String memberId, LocalDate date) {
 
         // memberId로 회원 조회

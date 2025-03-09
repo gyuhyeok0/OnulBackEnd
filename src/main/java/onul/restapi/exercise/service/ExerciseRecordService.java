@@ -2,7 +2,6 @@ package onul.restapi.exercise.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import onul.restapi.exercise.dto.ExerciseDto;
 import onul.restapi.exercise.dto.ExerciseRecordDTO;
 import onul.restapi.exercise.dto.ExerciseVolumeRequest;
@@ -17,6 +16,8 @@ import onul.restapi.member.repository.MemberRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.LinkedHashMap;
 
 
@@ -91,7 +92,6 @@ public class ExerciseRecordService {
 
         // 오늘 날짜 설정
         LocalDate today = exerciseRecord.getRecordDate();
-        System.out.println("클라이언트에서 받아온 시간"+ today);
 
         // 엔티티 조회
         Members member = memberRepository.findById(exerciseRecord.getMemberId())
@@ -137,7 +137,6 @@ public class ExerciseRecordService {
                     .build();
 
             exerciseRecordRepository.save(newRecord);
-            System.out.println("새로운 운동 기록이 저장되었습니다: " + newRecord.getExerciseRecordId());
 
     }
 
@@ -149,9 +148,9 @@ public class ExerciseRecordService {
 
 
 
+    @Transactional
     public void deleteExerciseRecord(ExerciseRecordDTO exerciseRecord) {
 
-        System.out.println("서비스 숫자"+exerciseRecord.getExerciseService());
 
         LocalDate today = exerciseRecord.getRecordDate();
 
@@ -177,7 +176,6 @@ public class ExerciseRecordService {
         // 기록 삭제
         exerciseRecordRepository.delete(record);
 
-        System.out.println("삭제된 운동 기록 ID: " + record.getExerciseRecordId());
     }
 
 
@@ -257,7 +255,6 @@ public class ExerciseRecordService {
 
 
     public List<ExerciseRecordDTO> searchVolumeRecords(ExerciseVolumeRequest request) {
-        System.out.println("요청 데이터: " + request);
 
         // 요청에서 필요한 필드 추출
         String memberId = request.getMemberId();
@@ -277,11 +274,9 @@ public class ExerciseRecordService {
             );
 
             if (mostRecentDate == null) {
-                System.out.println("exerciseId: " + exerciseId + "에 대한 오늘 제외 최근 날짜가 없습니다.");
                 continue; // 데이터가 없으면 다음 exerciseId로 넘어감
             }
 
-            System.out.println("exerciseId: " + exerciseId + "에 대한 가장 최근 날짜: " + mostRecentDate);
 
             // 2. 해당 날짜에 대한 데이터 조회
             List<ExerciseRecord> exerciseRecords = exerciseRecordRepository.findRecordsByExerciseIdsAndDate(
@@ -339,8 +334,6 @@ public class ExerciseRecordService {
 
     public List<ExerciseRecordDTO> getExerciseRecordsForDate(String memberId, LocalDate recordDate) {
 
-        System.out.println(memberId);
-        System.out.println(recordDate);
 
         // ExerciseRecord 엔티티를 검색
         List<ExerciseRecord> exerciseRecords = exerciseRepository.findRecordsByMemberIdAndDate(memberId, recordDate);

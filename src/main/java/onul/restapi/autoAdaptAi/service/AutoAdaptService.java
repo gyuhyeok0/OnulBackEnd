@@ -1,6 +1,5 @@
 package onul.restapi.autoAdaptAi.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.autoAdaptAi.dto.AutoAdaptDTO;
 import onul.restapi.autoAdaptAi.entity.AutoAdaptEntity;
 import onul.restapi.autoAdaptAi.repository.AutoAdaptRepository;
@@ -9,6 +8,7 @@ import onul.restapi.exercise.repository.ExerciseRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -77,13 +77,13 @@ public class AutoAdaptService {
         return autoAdaptRepository.existsByMember_MemberIdAndDate(memberId, date);
     }
 
+    @Transactional(readOnly = true)
     public List<Exercise> getExercises(AutoAdaptDTO request) {
         // ✅ 회원 조회
         String memberId = request.getMemberId();
         Members member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
 
-        System.out.println(request.getDate());
 
         // ✅ AutoAdaptEntity 조회
         Optional<AutoAdaptEntity> autoAdaptEntityOptional = autoAdaptRepository.findByMemberAndDate(member, request.getDate());

@@ -86,7 +86,6 @@ public class AnalysisController {
     public ResponseEntity<?> getMonthlyWeightAndDiet(@RequestParam("memberId") String memberId) {
         List<WeightAndDietStatisticsDTO> response = analysisService.getMonthlyStatistics(memberId);
 
-        System.out.println(response);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response); // Return the statistics data

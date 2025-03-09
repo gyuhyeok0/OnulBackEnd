@@ -4,6 +4,7 @@ import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.repository.ExerciseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class ExerciseService {
 
 
     // 목록 좋아요
+    @Transactional
     public boolean toggleLike(Long exerciseId, Boolean isLiked) {
         // 운동 ID로 운동 정보 조회
         Optional<Exercise> exerciseOpt = exerciseRepository.findById(exerciseId);

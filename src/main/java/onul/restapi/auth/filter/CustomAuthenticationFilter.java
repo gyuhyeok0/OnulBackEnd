@@ -33,7 +33,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     }
 
     private UsernamePasswordAuthenticationToken getAuthRequest(HttpServletRequest request) throws IOException{
-        System.out.println("UsernamePasswordAuthenticationToken");
         ObjectMapper objectMapper = new ObjectMapper();
 
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE,true);
