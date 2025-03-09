@@ -83,13 +83,11 @@ public class ExerciseRecordController {
     public ResponseEntity<?> searchVolume(@RequestBody ExerciseVolumeRequest request) {
         try {
             // 요청 아이디 로그 출력
-            System.out.println("요청 아이디: " + request.getExerciseIds());
 
             // 요청 데이터를 서비스 레이어로 전달
             List<ExerciseRecordDTO> records = exerciseRecordService.searchVolumeRecords(request);
 
             // 결과 로그 출력
-            System.out.println("확인 필요: " + records);
 
             // 결과가 비어있을 경우 204 No Content 반환
             if (records.isEmpty()) {

@@ -58,7 +58,6 @@ public class TokenUtils {
 
         // 기존 토큰이 유효한 경우
         if (existingToken != null && isValidToken(existingToken)) {
-            System.out.println("이미 있습니다: " + existingToken);
             return existingToken; // 기존 토큰 반환
         }
 
@@ -109,10 +108,8 @@ public class TokenUtils {
             Claims claims = getClaimsFromToken(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("토큰이 만료되었습니다.");
             return false;
         } catch (JwtException | NullPointerException e) {
-            System.out.println("유효하지 않은 토큰입니다.");
             return false;
         }
     }
@@ -143,7 +140,6 @@ public class TokenUtils {
             return expiration.before(new Date()); // 현재 시간과 비교
 
         } catch (JwtException e) {
-            System.out.println("만료된 리프레시 토큰입니다.");
             return true; // 유효하지 않으면 만료된 것으로 간주
         }
     }

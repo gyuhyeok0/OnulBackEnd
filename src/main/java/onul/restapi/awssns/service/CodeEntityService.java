@@ -24,6 +24,5 @@ public class CodeEntityService {
         // 일주일이 지난 인증 코드 삭제
         List<CodeEntity> expiredCodes = codeRepository.findByExpiryTimeBefore(oneWeekAgo);
         codeRepository.deleteAll(expiredCodes);
-        System.out.println("만료된 코드 삭제 작업 실행됨");
     }
 }

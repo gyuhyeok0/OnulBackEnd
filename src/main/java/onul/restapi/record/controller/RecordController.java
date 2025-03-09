@@ -25,7 +25,6 @@ public class RecordController {
             // 해당 월의 모든 날짜에 대해 데이터 존재 여부 체크
             MonthDataExistResponse response = recordService.checkMonthDataExist(request.getMemberId(), request.getMountMonth());
 
-            System.out.println(response);
 //            return null;
             return new ResponseEntity<>(response, HttpStatus.OK);
 

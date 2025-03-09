@@ -1,6 +1,5 @@
 package onul.restapi.autoAdaptAi.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingDTO;
 import onul.restapi.autoAdaptAi.dto.AutoAdaptSettingRequstDTO;
 import onul.restapi.autoAdaptAi.dto.PriorityPartsRequestDTO;
@@ -9,6 +8,7 @@ import onul.restapi.autoAdaptAi.repository.AutoAdaptSettingRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -121,8 +121,6 @@ public class ExerciseSettingService {
     @Transactional
     public void changePriority(PriorityPartsRequestDTO request) {
 
-        System.out.println("변경할 priorityParts (String): " + request.getPriorityParts());
-        System.out.println("대상 회원 ID: " + request.getMemberId());
 
         // 1. 회원 조회 (예외 처리)
         Members member = memberRepository.findById(request.getMemberId())
@@ -137,7 +135,6 @@ public class ExerciseSettingService {
                 ? Collections.emptyList() // 빈 문자열 또는 null이면 빈 리스트로 처리
                 : Arrays.asList(request.getPriorityParts().split("\\s*,\\s*")); // 쉼표 기준으로 분할 (공백 제거)
 
-        System.out.println("변환된 priorityParts (List): " + priorityPartsList);
 
         // 4. 기존 설정에서 priorityParts만 변경
         AutoAdaptSettingEntity updatedSetting = existingSetting.toBuilder()
@@ -172,7 +169,6 @@ public class ExerciseSettingService {
     @Transactional
     public void updatePriorityDefaltSetting(PriorityPartsRequestDTO request) {
 
-        System.out.println("오늘 운동이 없을때 자동으로 초기화");
 
         // 1. 회원 조회 (예외 처리)
         Members member = memberRepository.findById(request.getMemberId())
@@ -187,7 +183,6 @@ public class ExerciseSettingService {
                 ? Collections.emptyList() // 빈 문자열 또는 null이면 빈 리스트로 처리
                 : Arrays.asList(request.getPriorityParts().split("\\s*,\\s*")); // 쉼표 기준으로 분할 (공백 제거)
 
-        System.out.println("변환된 priorityParts (List): " + priorityPartsList);
 
         // 4. 기존 설정에서 priorityParts만 변경
         AutoAdaptSettingEntity updatedSetting = existingSetting.toBuilder()

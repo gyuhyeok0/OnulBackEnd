@@ -20,7 +20,6 @@ public class RedisService {
     // Refresh Token 가져오기
     public String getRefreshToken(String memberId) {
         String token = redisTemplate.opsForValue().get(memberId);
-        System.out.println("Fetching refresh token for memberId: " + memberId + ", Token: " + token);
         return token;
     }
 
@@ -29,7 +28,6 @@ public class RedisService {
     // Refresh Token 삭제 (비밀변호 변경시)
     public void deleteRefreshToken(String memberId) {
 
-        System.out.println("삭제되었음");
         redisTemplate.delete(memberId);
     }
 

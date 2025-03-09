@@ -1,10 +1,10 @@
 package onul.restapi.inquiry.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.inquiry.dto.InquiryDTO;
 import onul.restapi.inquiry.entity.InquiryEntity;
 import onul.restapi.inquiry.repository.InquiryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 

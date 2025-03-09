@@ -25,7 +25,6 @@ public class OnboardingController {
 
         boolean needsOnboarding = onboardingService.checkIfNeedsOnboarding(memberId);
 
-        System.out.println(needsOnboarding);
         return ResponseEntity.ok(needsOnboarding);
     }
 
@@ -76,7 +75,6 @@ public class OnboardingController {
             difficulty = "고급";
         }
 
-        System.out.println("난이도: " + difficulty);
 
 
         // 기본 운동 세팅

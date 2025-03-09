@@ -124,7 +124,6 @@ public class MyExerciseService {
 
     // 내 운동 조회
     public List<Exercise> getMyExercises(String memberId, String muscleGroup) {
-        System.out.println("Member ID: " + memberId + ", Muscle Group: " + muscleGroup);
 
         // 회원 정보 가져오기
         Members member = memberRepository.findById(memberId)

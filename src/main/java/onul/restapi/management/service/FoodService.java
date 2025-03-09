@@ -111,19 +111,15 @@ public class FoodService {
             // 회원 조회
             Members member = memberRepository.findById(memberId)
                     .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
-            System.out.println("Member found: " + member.getMemberId());
 
             // FoodEntity 조회
             List<FoodEntity> foodEntities = foodEntityRepository.findByMember(member);
-            System.out.println("Food entities count: " + foodEntities.size());
 
             // DTO 변환
             return foodEntities.stream()
                     .map(foodEntity -> {
-                        System.out.println("Processing FoodEntity with Recipe ID: " + foodEntity.getRecipeId());
                         List<FoodItemEntity> foodItems = foodItemEntityRepository.findByFoodEntity(foodEntity);
 
-                        System.out.println("FoodItems count for Recipe ID " + foodEntity.getRecipeId() + ": " + foodItems.size());
 
                         return new FoodRecipeResponse(
                                 foodEntity.getRecipeId(),
@@ -149,7 +145,6 @@ public class FoodService {
         // 요청에서 전달받은 회원 ID를 사용하여 회원 정보를 조회합니다.
         Members member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
-        System.out.println("Member found: " + member.getMemberId());
 
         // 요청에서 전달받은 날짜와 회원 ID, mealType에 해당하는 TotalFoodData를 조회합니다.
         TotalFoodData existingFoodData = totalFoodDataRepository.findByMember_memberIdAndDateAndMealType(
@@ -213,7 +208,6 @@ public class FoodService {
             throw new IllegalArgumentException("No food records found for the given member and date.");
         }
 
-//        System.out.println("조회된 데이터 개수: " + totalFoodDataList.size());
 
         // TotalFoodData 리스트를 SavedFoodDataResponse 리스트로 변환
         return totalFoodDataList.stream()

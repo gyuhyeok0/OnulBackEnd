@@ -1,12 +1,12 @@
 package onul.restapi.exercise.service;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.exercise.dto.IntensityDTO;
 import onul.restapi.exercise.entity.IntensityEntity;
 import onul.restapi.exercise.repository.IntensityRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -24,6 +24,7 @@ public class IntensityService {
         this.memberRepository = memberRepository;
     }
 
+    @Transactional
     public IntensityDTO saveIntensity(String memberId, String intensity) {
         LocalDate today = LocalDate.now();
         Date todayStart = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());

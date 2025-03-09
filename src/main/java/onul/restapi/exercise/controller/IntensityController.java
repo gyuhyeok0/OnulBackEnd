@@ -26,12 +26,10 @@ public class IntensityController {
     public ResponseEntity<?> saveIntensity(@RequestBody IntensityDTO intensityDTO) {
         try {
             // DTO에서 값 확인
-            System.out.println(intensityDTO.getIntensity());
 
             // 서비스 호출 및 저장된 데이터 반환
             IntensityDTO savedIntensity = intensityService.saveIntensity(intensityDTO.getMemberId(), intensityDTO.getIntensity());
 
-            System.out.println(savedIntensity);
             // 저장된 데이터를 반환
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)

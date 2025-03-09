@@ -98,13 +98,10 @@ public class AutoAdaptAiController {
     @PostMapping(value = "/aiRequest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> requestAiRecommendation(@RequestBody AutoAdaptRequestDTO request, @RequestParam("date") LocalDate date) throws JsonProcessingException {
 
-        System.out.println("ai 요청이요");
         // true: 생성할때 "자동" 으로만 넣어야해
-        System.out.println(request.isInitialization());
 
         // true : 날짜 확인후 날짜가 있으면 그대로 종류, 없으면 새로 생성
         // false : 날짜 확인 안해도 됨
-        System.out.println(request.isCheckDate());
 
 
         // 조건문 밖에서 선언
@@ -118,7 +115,6 @@ public class AutoAdaptAiController {
             boolean exists = autoAdaptService.existsAutoAdaptForToday(request.getMemberId(),date);
 
             if (exists) {
-                System.out.println("✅ 오늘 날짜에 데이터가 이미 존재하므로 종료");
                 return null;  // 데이터가 있으면 종료
             }
 
@@ -131,11 +127,9 @@ public class AutoAdaptAiController {
 
         } else {
 
-            System.out.println("setting 직접 변경시 실행");
             defaltExerciseSetting = exerciseSettingService.selectAutoAdaptSetting(request.getMemberId());
         }
 
-        System.out.println(defaltExerciseSetting);
 
         //2 오늘 운동 피로도
         Map<String, List<MuscleFatigueDTO>> todayExerciseFatigue = analysisService.getMuscleFatigueByMemberAndToday(request.getMemberId(), date);
@@ -157,7 +151,6 @@ public class AutoAdaptAiController {
         // DTO를 JSON으로 변환
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String jsonPayload = objectMapper.writeValueAsString(aiRequestDto);
-        System.out.println("📌 변환된 JSON: " + jsonPayload);
 
         try {
 //            HttpClient client = HttpClient.newHttpClient();
@@ -179,13 +172,8 @@ public class AutoAdaptAiController {
             HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             // ✅ 응답 로그 출력
-            System.out.println("📌 [Java] 응답 상태 코드: " + response.statusCode());
-            System.out.println("📌 [Java] 응답 본문: " + response.body());
 
             // ✅ Python 서버 응답 출력
-            System.out.println( response.body());
-            System.out.println(date);
-            System.out.println(request.getMemberId());
 
             String memberId = request.getMemberId();
 
@@ -200,7 +188,6 @@ public class AutoAdaptAiController {
             // ✅ AutoAdaptDTO 객체 생성
             AutoAdaptDTO autoAdaptDTO = new AutoAdaptDTO(exerciseList, date, memberId);
 
-            System.out.println("최종"+autoAdaptDTO);
             AutoAdaptEntity savedEntity = autoAdaptService.saveOrUpdateAutoAdapt(autoAdaptDTO);
 
 
@@ -208,7 +195,6 @@ public class AutoAdaptAiController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("❌ Python 서버 요청 실패");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
@@ -218,9 +204,6 @@ public class AutoAdaptAiController {
     @PostMapping(value = "/autoAdaptExercises", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> autoAdaptExercises(@RequestBody AutoAdaptDTO request) {
         try {
-            System.out.println("오늘 운동 검색");
-            System.out.println(request.getDate());
-            System.out.println(request.getMemberId());
 
             String memberId = request.getMemberId();
 
@@ -228,7 +211,6 @@ public class AutoAdaptAiController {
             List<Exercise> exercises = autoAdaptService.getExercises(request);
 
             if (exercises.isEmpty()) {
-                System.out.println("오늘 운동이 없습니다");
 
                 PriorityPartsRequestDTO requestDTO = new PriorityPartsRequestDTO();
 

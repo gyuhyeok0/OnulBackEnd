@@ -6,10 +6,10 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.transaction.Transactional;
 import onul.restapi.awssns.entity.CodeEntity;
 import onul.restapi.awssns.repository.CodeRepository;
 import onul.restapi.member.repository.MemberRepository;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -48,6 +48,7 @@ public class SmsService {
     }
 
     // 인증코드 전송
+    @Transactional
     public SmsResponse sendSms(String phoneNumber, boolean skipPhoneNumberCheck) {
 
 
@@ -89,7 +90,6 @@ public class SmsService {
                 if (codeEntity.getRequestCount() >= REQUEST_LIMIT) {
                     return new SmsResponse("LIMIT_EXCEEDED"); // 요청 제한 초과
                 } else {
-                    System.out.println("1");
 
                     // 요청 횟수 증가 및 시간 갱신
                     codeEntity.setRequestCount(codeEntity.getRequestCount() + 1);
@@ -103,7 +103,6 @@ public class SmsService {
                 codeRepository.save(codeEntity);
             }
 
-            System.out.println("5");
             // 새로운 인증 코드를 생성하여 업데이트
             String newVerificationCode = generateVerificationCode();
             codeEntity.setCode(newVerificationCode); // 새로운 인증 코드 설정
