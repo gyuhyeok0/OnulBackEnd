@@ -33,6 +33,13 @@ public class ExerciseSettingService {
         Members member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
 
+        // 이미 존재하는 AutoAdaptSettingEntity가 있는지 확인
+        boolean exists = autoAdaptSettingRepository.existsByMember(member);
+
+        if (exists) {
+            return; // 이미 존재하면 아무 작업도 하지 않음
+        }
+
         AutoAdaptSettingEntity defaultSetting = AutoAdaptSettingEntity.builder()
                 .member(member)
                 .exerciseGoal("근비대")  // 기본값: 근비대
