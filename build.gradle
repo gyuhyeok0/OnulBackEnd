@@ -65,6 +65,9 @@ dependencies {
     // Java 8+ 날짜/시간(`LocalDate`, `LocalDateTime`) 지원 추가
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
 
+    //    mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.eclipse.angus:jakarta.mail:2.0.1'
 }
 
 tasks.named('test') {
