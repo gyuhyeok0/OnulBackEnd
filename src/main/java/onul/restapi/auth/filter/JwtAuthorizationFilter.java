@@ -51,12 +51,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         List<String> roleLeessList = Arrays.asList(
 
                 "/auth/autoAdapt",
-
                 "/analysis/update",
                 "/appVersion/(.*)",
                 "/auth/refresh",
                 "/inspection/(.*)",
                 "/privacy-policy.html",
+                "/terms-of-service.html",
+
                 "/signup/(.*)",
                 "/privacy-policy/(.*)",
                 "/sms/(.*)",

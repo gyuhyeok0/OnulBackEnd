@@ -2,6 +2,7 @@ package onul.restapi.inquiry.controller;
 
 import onul.restapi.inquiry.dto.InquiryDTO;
 import onul.restapi.inquiry.service.InquiryService;
+import onul.restapi.inquiry.service.MailService;
 import onul.restapi.member.controller.StateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class InquiryController {
 
     private final InquiryService inquiryService;
+    private final MailService mailService;
 
-    public InquiryController(InquiryService inquiryService) {
+    public InquiryController(InquiryService inquiryService, MailService mailService) {
         this.inquiryService = inquiryService;
+        this.mailService = mailService;
     }
 
     @PostMapping("/submit")
@@ -41,6 +44,10 @@ public class InquiryController {
 
         // 3. 문의 데이터 저장
         inquiryService.submitInquiry(inquiryDTO);
+
+        // 5. 이메일 전송
+        mailService.sendInquiryEmail(inquiryDTO);
+
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

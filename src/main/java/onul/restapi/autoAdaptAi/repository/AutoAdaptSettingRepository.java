@@ -15,4 +15,6 @@ public interface AutoAdaptSettingRepository extends JpaRepository<AutoAdaptSetti
 
 
     void deleteByMember(Members member);
+
+    boolean existsByMember(Members member);
 }
