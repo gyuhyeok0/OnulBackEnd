@@ -1,52 +1,59 @@
 package onul.restapi.autoAdaptAi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.dto.MuscleFatigueDTO;
 import onul.restapi.analysis.service.AnalysisService;
 import onul.restapi.autoAdaptAi.dto.*;
-import onul.restapi.autoAdaptAi.entity.AutoAdaptEntity;
+import onul.restapi.autoAdaptAi.service.AiRecommendationService;
 import onul.restapi.autoAdaptAi.service.AutoAdaptService;
 import onul.restapi.autoAdaptAi.service.ExerciseSettingService;
-import onul.restapi.exercise.dto.ExerciseRecordDTO;
+import onul.restapi.autoAdaptAi.service.RequestLimitService;
 import onul.restapi.exercise.entity.AiExerciseRecordDTO;
 import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.service.ExerciseRecordService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 
 @RestController
 @RequestMapping("/autoAdapt")
 public class AutoAdaptAiController {
 
+
+    @Autowired
+    @Qualifier("asyncExecutor")
+    private Executor asyncExecutor;
+
     private final ExerciseSettingService exerciseSettingService;
     private final AnalysisService   analysisService;
     private final ExerciseRecordService exerciseRecordService;
     private final AutoAdaptService autoAdaptService;
+    private final RequestLimitService requestLimitService;
+    private final AiRecommendationService aiRecommendationService;
 
-    public AutoAdaptAiController(ExerciseSettingService exerciseSettingService, AnalysisService analysisService, ExerciseRecordService exerciseRecordService, AutoAdaptService autoAdaptService) {
+    public AutoAdaptAiController(ExerciseSettingService exerciseSettingService, AnalysisService analysisService, ExerciseRecordService exerciseRecordService, AutoAdaptService autoAdaptService, RequestLimitService requestLimitService, AiRecommendationService aiRecommendationService) {
         this.exerciseSettingService = exerciseSettingService;
         this.analysisService = analysisService;
         this.exerciseRecordService = exerciseRecordService;
         this.autoAdaptService = autoAdaptService;
+        this.requestLimitService = requestLimitService;
+        this.aiRecommendationService = aiRecommendationService;
     }
 
     @GetMapping(value = "/getAutoAdaptSetting", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,12 +103,24 @@ public class AutoAdaptAiController {
 
     // ✅ 새로운 AI 추천 요청 API 추가
     @PostMapping(value = "/aiRequest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> requestAiRecommendation(@RequestBody AutoAdaptRequestDTO request, @RequestParam("date") LocalDate date) throws JsonProcessingException {
+    public CompletableFuture<ResponseEntity<?>> requestAiRecommendation(
+            @RequestBody AutoAdaptRequestDTO request,
+            @RequestParam("date") LocalDate date,
+            @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) throws JsonProcessingException {
 
         // true: 생성할때 "자동" 으로만 넣어야해
 
         // true : 날짜 확인후 날짜가 있으면 그대로 종류, 없으면 새로 생성
         // false : 날짜 확인 안해도 됨
+
+//      1분 동안 최대 2번만 요청 허용 (3번째 요청부터 차단)
+        if (!requestLimitService.isRequestAllowed(authHeader)) {
+            System.out.println("⚠️ Too many requests from user. Request blocked. (UserToken: " + authHeader + ")");
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("error", "Too many requests", "message", "You can only request twice in 8 minutes.")));
+        }
 
 
         // 조건문 밖에서 선언
@@ -128,77 +147,62 @@ public class AutoAdaptAiController {
         } else {
 
             defaltExerciseSetting = exerciseSettingService.selectAutoAdaptSetting(request.getMemberId());
+
         }
 
+        // ✅ 2️⃣ 오늘 운동 피로도 조회 후, 운동 기록 조회를 순차적으로 실행
+        CompletableFuture<Map<String, List<MuscleFatigueDTO>>> todayExerciseFatigueFuture =
+                CompletableFuture.supplyAsync(() ->
+                        analysisService.getMuscleFatigueByMemberAndToday(request.getMemberId(), date), asyncExecutor
+                ).exceptionally(ex -> {
+                    System.err.println("⚠️ 운동 피로도 조회 실패: " + ex.getMessage());
+                    return Collections.emptyMap();
+                });
 
-        //2 오늘 운동 피로도
-        Map<String, List<MuscleFatigueDTO>> todayExerciseFatigue = analysisService.getMuscleFatigueByMemberAndToday(request.getMemberId(), date);
-
-        // 날짜별 운동 기록 가져오기
-        Map<LocalDate, List<AiExerciseRecordDTO>> recentExercisesRecord = exerciseRecordService.getRecentExercisesGroupedByDate(request.getMemberId());
-
-        // ✅ DTO 생성 (없는 데이터는 기본값 처리)
-        AiRecommendationRequestDTO aiRequestDto = new AiRecommendationRequestDTO(
-                defaltExerciseSetting,
-//                recentVolumeByMuscleGroup, // 없으면 null
-                (todayExerciseFatigue != null) ? todayExerciseFatigue : Collections.emptyMap(), // 없으면 빈 맵
-                (recentExercisesRecord != null) ? recentExercisesRecord : Collections.emptyMap() // 없으면 빈 맵
-        );
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-
-        // DTO를 JSON으로 변환
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        String jsonPayload = objectMapper.writeValueAsString(aiRequestDto);
-
-        try {
-//            HttpClient client = HttpClient.newHttpClient();
-
-            HttpClient client = HttpClient.newBuilder()
-                    .version(HttpClient.Version.HTTP_1_1)  // 🚀 HTTP/1.1로 강제 설정
-                    .build();
+        // ✅ 첫 번째 작업이 끝난 후 두 번째 작업 실행
+        CompletableFuture<Map<LocalDate, List<AiExerciseRecordDTO>>> recentExercisesRecordFuture =
+                todayExerciseFatigueFuture.thenComposeAsync(fatigueResult ->
+                        CompletableFuture.supplyAsync(() ->
+                                exerciseRecordService.getRecentExercisesGroupedByDate(request.getMemberId()), asyncExecutor
+                        ).exceptionally(ex -> {
+                            System.err.println("⚠️ 운동 기록 조회 실패: " + ex.getMessage());
+                            return Collections.emptyMap();
+                        })
+                );
 
 
-            // ✅ Python 서버로 HTTP POST 요청
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(new URI("http://127.0.0.1:8000/aiRequest"))  // Python 서버 주소
-                    .header("Content-Type", "application/json")  // JSON 데이터로 전송
-                    .header("Accept", "application/json")  // JSON 응답 기대
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))  // JSON 데이터 전송
-                    .build();
+        // ✅ 3️⃣ 모든 비동기 작업이 끝나면 AI 추천 요청 전송
+        return CompletableFuture.allOf(todayExerciseFatigueFuture, recentExercisesRecordFuture)
+                .thenCompose(voided -> {
+                    Map<String, List<MuscleFatigueDTO>> todayExerciseFatigue = todayExerciseFatigueFuture.join();
+                    Map<LocalDate, List<AiExerciseRecordDTO>> recentExercisesRecord = recentExercisesRecordFuture.join();
 
-            // ✅ 응답 받기
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                    // DTO 생성 (없는 데이터는 기본값 처리)
+                    AiRecommendationRequestDTO aiRequestDto = new AiRecommendationRequestDTO(
+                            defaltExerciseSetting,
+                            todayExerciseFatigue,
+                            recentExercisesRecord
+                    );
 
-            // ✅ 응답 로그 출력
+                    // DTO를 JSON으로 변환
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    objectMapper.registerModule(new JavaTimeModule());
+                    objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                    String jsonPayload;
+                    try {
+                        jsonPayload = objectMapper.writeValueAsString(aiRequestDto);
+                    } catch (JsonProcessingException e) {
+                        return CompletableFuture.completedFuture(
+                                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                        .body(Map.of("error", "JsonProcessingException", "message", e.getMessage()))
+                        );
+                    }
 
-            // ✅ Python 서버 응답 출력
-
-            String memberId = request.getMemberId();
-
-            String jsonResponse = response.body();  // responseBody를 jsonResponse로 저장
-
-            // ✅ Jackson ObjectMapper 생성
-            ObjectMapper objectMapperPython = new ObjectMapper();
-
-            // ✅ JSON 배열을 List<Long>로 변환
-            List<Long> exerciseList = objectMapperPython.readValue(jsonResponse, new TypeReference<List<Long>>() {});
-
-            // ✅ AutoAdaptDTO 객체 생성
-            AutoAdaptDTO autoAdaptDTO = new AutoAdaptDTO(exerciseList, date, memberId);
-
-            AutoAdaptEntity savedEntity = autoAdaptService.saveOrUpdateAutoAdapt(autoAdaptDTO);
-
-
-            return ResponseEntity.ok().build();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
+                    // AI 요청 실행
+                    return aiRecommendationService.sendAiRequest(jsonPayload, date, request.getMemberId());
+                });
     }
+
 
 
     @PostMapping(value = "/autoAdaptExercises", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

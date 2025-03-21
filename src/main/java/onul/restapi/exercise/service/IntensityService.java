@@ -5,6 +5,7 @@ import onul.restapi.exercise.entity.IntensityEntity;
 import onul.restapi.exercise.repository.IntensityRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +18,11 @@ import java.util.Date;
 public class IntensityService {
 
     private final IntensityRepository intensityRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public IntensityService(IntensityRepository intensityRepository, MemberRepository memberRepository) {
+    public IntensityService(IntensityRepository intensityRepository, MemberService memberService) {
         this.intensityRepository = intensityRepository;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     @Transactional
@@ -29,8 +30,7 @@ public class IntensityService {
         LocalDate today = LocalDate.now();
         Date todayStart = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Members member = memberService.getMemberById(memberId);
 
         IntensityEntity existingIntensity = intensityRepository.findByMemberAndCreatedAt(member, todayStart);
 

@@ -8,6 +8,7 @@ import onul.restapi.exercise.repository.ExerciseRepository;
 import onul.restapi.exercise.repository.MyExerciseRepository;
 import onul.restapi.member.entity.Members; // Members 엔티티 임포트
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,22 +21,19 @@ public class MyExerciseService {
 
     private final MyExerciseRepository myExerciseRepository;
     private final ExerciseRepository exerciseRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public MyExerciseService(MyExerciseRepository myExerciseRepository, ExerciseRepository exerciseRepository, MemberRepository memberRepository) {
+    public MyExerciseService(MyExerciseRepository myExerciseRepository, ExerciseRepository exerciseRepository, MemberService memberService) {
         this.myExerciseRepository = myExerciseRepository;
         this.exerciseRepository = exerciseRepository;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
-
-
-
 
     @Transactional
     public MyExercise registerMyExercises(MyExerciseDTO myExerciseDTO) {
         // 회원 정보 가져오기
-        Members member = memberRepository.findById(myExerciseDTO.getMemberId())
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
+        Members member = memberService.getMemberById(myExerciseDTO.getMemberId());
+
 
         // MyExercise 엔티티를 member_id와 muscle_group으로 조회
         MyExercise existingMyExercise = myExerciseRepository.findByMemberAndMuscleGroup(member, myExerciseDTO.getMuscleGroup());
@@ -84,8 +82,8 @@ public class MyExerciseService {
     @Transactional
     public void deleteMyExercise(Long exerciseId, String memberId, String muscleGroup) {
         // 회원 정보 가져오기
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
+        Members member = memberService.getMemberById(memberId);
+
 
         // 운동 정보 가져오기
         Exercise exercise = exerciseRepository.findById(exerciseId)
@@ -126,8 +124,8 @@ public class MyExerciseService {
     public List<Exercise> getMyExercises(String memberId, String muscleGroup) {
 
         // 회원 정보 가져오기
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
+        Members member = memberService.getMemberById(memberId);
+
 
         // MyExercise 엔티티를 member_id와 muscle_group으로 조회
         MyExercise existingMyExercise = myExerciseRepository.findByMemberAndMuscleGroup(member, muscleGroup);

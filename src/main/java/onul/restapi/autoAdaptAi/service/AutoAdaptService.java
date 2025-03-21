@@ -7,6 +7,7 @@ import onul.restapi.exercise.entity.Exercise;
 import onul.restapi.exercise.repository.ExerciseRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,21 +23,22 @@ public class AutoAdaptService {
     private final AutoAdaptRepository autoAdaptRepository;
     private final ExerciseRepository exerciseRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public AutoAdaptService(AutoAdaptRepository autoAdaptRepository, ExerciseRepository exerciseRepository, MemberRepository memberRepository) {
+    public AutoAdaptService(AutoAdaptRepository autoAdaptRepository, ExerciseRepository exerciseRepository, MemberRepository memberRepository, MemberService memberService) {
         this.autoAdaptRepository = autoAdaptRepository;
         this.exerciseRepository = exerciseRepository;
         this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
-
 
     @Transactional
     public AutoAdaptEntity saveOrUpdateAutoAdapt(AutoAdaptDTO autoAdaptDTO) {
 
         // ✅ 회원 조회
         String memberId = autoAdaptDTO.getMemberId();
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        Members member = memberService.getMemberById(memberId);
 
 
         // ✅ `List<Integer>`가 들어올 가능성이 있으므로 `List<Long>`으로 변환
@@ -73,7 +75,6 @@ public class AutoAdaptService {
 
 
     public boolean existsAutoAdaptForToday(String memberId, LocalDate date) {
-
         return autoAdaptRepository.existsByMember_MemberIdAndDate(memberId, date);
     }
 
@@ -81,8 +82,8 @@ public class AutoAdaptService {
     public List<Exercise> getExercises(AutoAdaptDTO request) {
         // ✅ 회원 조회
         String memberId = request.getMemberId();
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+
+        Members member = memberService.getMemberById(memberId);
 
 
         // ✅ AutoAdaptEntity 조회

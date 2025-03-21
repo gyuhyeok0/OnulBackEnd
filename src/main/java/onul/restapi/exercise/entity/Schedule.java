@@ -18,13 +18,13 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String weekType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String day;
 
-    @Column(name = "part")
+    @Column(name = "part", length = 100)
     private String part;
 
     @ManyToOne(fetch = FetchType.LAZY)

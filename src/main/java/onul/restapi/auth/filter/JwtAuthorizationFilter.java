@@ -47,6 +47,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
+        System.out.println("💬 request.getRequestURI(): " + request.getRequestURI());
+        System.out.println("💬 request.getServletPath(): " + request.getServletPath());
+
+
         // API 호출을 제외할 URL 패턴 설정
         List<String> roleLeessList = Arrays.asList(
 

@@ -48,10 +48,9 @@ public class DeleteAccountService {
     private final MemberRepository memberRepository;
     private final SignupMember signupMember;
     private final InquiryRepository inquiryRepository;
+    private final MemberService memberService;
 
-
-
-    public DeleteAccountService(ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository, ExerciseVolumeRepository exerciseVolumeRepository, MuscleFatigueRepository muscleFatigueRepository, AutoAdaptRepository autoAdaptRepository, AutoAdaptSettingRepository autoAdaptSettingRepository, ExerciseRecordRepository exerciseRecordRepository, IntensityRepository intensityRepository, MyExerciseRepository myExerciseRepository, ScheduleRepository scheduleRepository, BodyDataRepository bodyDataRepository, FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, OnboardingRepository onboardingRepository, MemberRepository memberRepository, SignupMember signupMember, InquiryRepository inquiryRepository) {
+    public DeleteAccountService(ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository, ExerciseVolumeRepository exerciseVolumeRepository, MuscleFatigueRepository muscleFatigueRepository, AutoAdaptRepository autoAdaptRepository, AutoAdaptSettingRepository autoAdaptSettingRepository, ExerciseRecordRepository exerciseRecordRepository, IntensityRepository intensityRepository, MyExerciseRepository myExerciseRepository, ScheduleRepository scheduleRepository, BodyDataRepository bodyDataRepository, FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, OnboardingRepository onboardingRepository, MemberRepository memberRepository, SignupMember signupMember, InquiryRepository inquiryRepository, MemberService memberService) {
         this.exerciseGroupVolumeStatsRepository = exerciseGroupVolumeStatsRepository;
         this.exerciseVolumeRepository = exerciseVolumeRepository;
         this.muscleFatigueRepository = muscleFatigueRepository;
@@ -70,15 +69,14 @@ public class DeleteAccountService {
         this.memberRepository = memberRepository;
         this.signupMember = signupMember;
         this.inquiryRepository = inquiryRepository;
+        this.memberService = memberService;
     }
 
     @Transactional
     public void deleteAccount(String memberId) {
 
         // 🔥 1. 회원 존재 여부 확인
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
-
+        Members member = memberService.getMemberById(memberId);
 
         // 🔥 2. `memberId`가 포함된 테이블 삭제
         inquiryRepository.deleteByMemberId(memberId);

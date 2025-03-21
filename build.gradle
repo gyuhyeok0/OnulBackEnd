@@ -60,14 +60,20 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 
-    // Jackson Core 및 Databind (JSON 변환 기본 패키지)
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
-    // Java 8+ 날짜/시간(`LocalDate`, `LocalDateTime`) 지원 추가
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
+    // Jackson 라이브러리 (버전 명시하지 않고 Spring Boot 관리 버전 사용)
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
 
     //    mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.eclipse.angus:jakarta.mail:2.0.1'
+
+
+//    implementation 'io.github.cdimascio:dotenv-java:3.2.0'
+
+
 }
 
 tasks.named('test') {

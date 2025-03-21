@@ -4,6 +4,7 @@ import onul.restapi.management.dto.BodyDataDto;
 import onul.restapi.management.entity.BodyDataEntity;
 import onul.restapi.management.repository.BodyDataRepository;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import onul.restapi.member.entity.Members;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +17,18 @@ import java.util.Optional;
 public class BodyService {
 
     private final BodyDataRepository bodyDataRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-
-    public BodyService(BodyDataRepository bodyDataRepository, MemberRepository memberRepository) {
+    public BodyService(BodyDataRepository bodyDataRepository, MemberService memberService) {
         this.bodyDataRepository = bodyDataRepository;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     @Transactional
     public BodyDataDto saveBodyData(String memberId, BodyDataDto bodyDataDto) {
         // Member 엔티티를 먼저 조회
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+        Members member = memberService.getMemberById(memberId);
+
 
         // 오늘 날짜의 데이터가 이미 존재하는지 확인
         Optional<BodyDataEntity> existingEntity = bodyDataRepository.findByMemberAndDate(member, bodyDataDto.getDate());
@@ -85,10 +85,6 @@ public class BodyService {
     }
 
     public BodyDataDto getBodyRecordsForDate(String memberId, LocalDate date) {
-
-        // memberId로 회원 조회
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
 
         // memberId와 date를 기준으로 BodyData 조회
         BodyDataEntity bodyData = (BodyDataEntity) bodyDataRepository.findByMember_MemberIdAndDate(memberId, date)
