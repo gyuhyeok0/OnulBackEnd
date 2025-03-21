@@ -8,6 +8,8 @@ import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
 import onul.restapi.analysis.entity.MuscleFatigue;
 import onul.restapi.analysis.entity.WeightAndDietStatistics;
 import onul.restapi.analysis.service.AnalysisService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +17,17 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
 
 @RestController
 @RequestMapping("/analysis")
 public class AnalysisController {
+
+    @Autowired
+    @Qualifier("analysis")
+    private Executor asyncExecutor;
 
     private final AnalysisService analysisService;
 
@@ -27,33 +36,29 @@ public class AnalysisController {
         this.analysisService = analysisService;
     }
 
+
     @PostMapping("/update")
     public ResponseEntity<?> updateAnalysis(
             @RequestParam("memberId") String memberId,
             @RequestParam("date") LocalDate date) {
 
         try {
-            // 일별 운동량 통계 업데이트
-            try {
-                analysisService.updateVolumeStatistics(memberId, date);
-            } catch (Exception e) {
-            }
+            CompletableFuture.runAsync(() -> analysisService.updateVolumeStatistics(memberId, date), asyncExecutor)
+                    .thenRunAsync(() -> analysisService.updateWeightAndDietStatistics(memberId, date), asyncExecutor)
+                    .thenRunAsync(() -> analysisService.updateMuscleFatigue(memberId, date), asyncExecutor)
+                    .exceptionally(ex -> {  // ✅ 예외 발생 시 로깅 및 처리
+                        System.err.println("Error occurred in analysis tasks: " + ex.getMessage());
+                        return null;  // 예외가 발생해도 흐름이 깨지지 않도록 처리
+                    })
+                    .join();
 
-            // 몸무게 및 식단 통계
-            try {
-                analysisService.updateWeightAndDietStatistics(memberId, date);
-            } catch (Exception e) {
-            }
-
-            // 근육피로도
-            try {
-                analysisService.updateMuscleFatigue(memberId, date);
-            } catch (Exception e) {
-            }
-
-            return ResponseEntity.ok("Analysis data updated successfully.");
+            return ResponseEntity.ok("All analysis tasks completed successfully.");
+        } catch (CompletionException e) {
+            // ✅ 내부 예외를 꺼내서 처리 (원래 예외를 추출)
+            Throwable cause = e.getCause();
+            return ResponseEntity.status(500).body("An error occurred: " + cause.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("An error occurred: " + e.getMessage());
+            return ResponseEntity.status(500).body("An unexpected error occurred: " + e.getMessage());
         }
     }
 

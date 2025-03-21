@@ -21,6 +21,7 @@ import onul.restapi.management.repository.TotalFoodDataRepository;
 import onul.restapi.management.repository.WeightAndDietStatisticsRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -59,7 +60,9 @@ public class AnalysisService {
 
     private final ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository;
 
-    public AnalysisService(ExerciseRecordRepository exerciseRecordRepository, ExerciseVolumeRepository exerciseVolumeRepository, MemberRepository memberRepository, ExerciseRepository exerciseRepository, BodyDataRepository bodyDataRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, MuscleFatigueRepository muscleFatigueRepository, ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository) {
+    private final MemberService memberService;
+
+    public AnalysisService(ExerciseRecordRepository exerciseRecordRepository, ExerciseVolumeRepository exerciseVolumeRepository, MemberRepository memberRepository, ExerciseRepository exerciseRepository, BodyDataRepository bodyDataRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, MuscleFatigueRepository muscleFatigueRepository, ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository, MemberService memberService) {
         this.exerciseRecordRepository = exerciseRecordRepository;
         this.exerciseVolumeRepository = exerciseVolumeRepository;
         this.memberRepository = memberRepository;
@@ -69,16 +72,18 @@ public class AnalysisService {
         this.weightAndDietStatisticsRepository = weightAndDietStatisticsRepository;
         this.muscleFatigueRepository = muscleFatigueRepository;
         this.exerciseGroupVolumeStatsRepository = exerciseGroupVolumeStatsRepository;
+        this.memberService = memberService;
     }
 
     @Transactional
     public void updateVolumeStatistics(String memberId, LocalDate today) {
 
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+        // ✅ Redis 캐시에서 회원 정보 가져오기
+        Members member = memberService.getMemberById(memberId);
 
         // 1. 기존 저장된 통계 가져오기
         Optional<LocalDate> lastSavedDate = exerciseVolumeRepository.findLatestRecordDateByMemberId(member.getMemberId());
+
 
         // 2. 새 데이터 가져오기 (이전 저장 날짜 이후 데이터만)
         List<ExerciseRecord> newRecords;
@@ -343,9 +348,8 @@ public class AnalysisService {
     @Transactional
     public void updateWeightAndDietStatistics(String memberId, LocalDate today) {
 
-        // 1. 회원 정보 가져오기
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+        // ✅ Redis 캐시에서 회원 정보 가져오기
+        Members member = memberService.getMemberById(memberId);
 
         // 이전 달의 첫 번째 날
         LocalDate monthStart = today.minusMonths(1).withDayOfMonth(1);
@@ -446,9 +450,10 @@ public class AnalysisService {
 
     @Transactional
     public void updateMuscleFatigue(String memberId, LocalDate clientDate) {
-        // 1. 회원 정보 가져오기
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+
+
+        // ✅ Redis 캐시에서 회원 정보 가져오기
+        Members member = memberService.getMemberById(memberId);
 
 
         // 2. 최근 운동 기록 가져오기 (오늘 날짜 제외)
@@ -777,9 +782,8 @@ public class AnalysisService {
 
         LocalDate today = LocalDate.now();
 
-        // 1. 회원 정보 가져오기
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원이 존재하지 않습니다."));
+        // ✅ Redis 캐시에서 회원 정보 가져오기
+        Members member = memberService.getMemberById(memberId);
 
         // 주간 데이터 조회 (최근 6주간)
         List<ExerciseGroupVolumeStatsEntity> weeklyData = exerciseVolumeRepository.findByMember_MemberIdAndPeriodTypeAndStartDateBetween(

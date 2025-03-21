@@ -421,4 +421,15 @@ public class ExerciseRecordService {
     }
 
 
+    @Transactional
+    public void deleteExerciseRecordsByDate(LocalDate date, ExerciseRecordDTO exerciseRecordDTO) {
+        // exerciseRecordDTO에서 exerciseServiceId와 exerciseId 가져오기
+        Long exerciseServiceId = (long) exerciseRecordDTO.getExerciseService();
+        Long exerciseId = exerciseRecordDTO.getExercise().getId();
+
+        // 해당 날짜, 운동 Service ID, 운동 ID에 해당하는 기록 삭제
+        exerciseRecordRepository.deleteByRecordDateAndExerciseServiceNumberIdAndExerciseId(date, exerciseServiceId, exerciseId);
+    }
+
+
 }

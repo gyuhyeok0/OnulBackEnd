@@ -7,6 +7,7 @@ import onul.restapi.autoAdaptAi.entity.AutoAdaptSettingEntity;
 import onul.restapi.autoAdaptAi.repository.AutoAdaptSettingRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,16 +23,18 @@ public class ExerciseSettingService {
 
     private final AutoAdaptSettingRepository autoAdaptSettingRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    public ExerciseSettingService(AutoAdaptSettingRepository autoAdaptSettingRepository, MemberRepository memberRepository) {
+    public ExerciseSettingService(AutoAdaptSettingRepository autoAdaptSettingRepository, MemberRepository memberRepository, MemberService memberService) {
         this.autoAdaptSettingRepository = autoAdaptSettingRepository;
         this.memberRepository = memberRepository;
+        this.memberService = memberService;
     }
 
     public void autoAdaptDefaultSetting(String memberId) {
 
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+        Members member = memberService.getMemberById(memberId);
+
 
         // 이미 존재하는 AutoAdaptSettingEntity가 있는지 확인
         boolean exists = autoAdaptSettingRepository.existsByMember(member);
@@ -58,9 +61,7 @@ public class ExerciseSettingService {
 
     public AutoAdaptSettingDTO selectAutoAdaptSetting(String memberId) {
 
-        // 1. 회원 조회 (예외 처리)
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+        Members member = memberService.getMemberById(memberId);
 
         // 2. 설정 조회
         AutoAdaptSettingEntity entity = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
@@ -88,9 +89,7 @@ public class ExerciseSettingService {
     @Transactional
     public void updateAutoAdaptSetting(AutoAdaptSettingRequstDTO request) {
 
-        // 1. 회원 조회 (예외 처리)
-        Members member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+        Members member = memberService.getMemberById(request.getMemberId());
 
         // 2. 기존 자동적응 설정 조회 (Optional 처리)
         AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member).orElse(null);
@@ -129,9 +128,7 @@ public class ExerciseSettingService {
     public void changePriority(PriorityPartsRequestDTO request) {
 
 
-        // 1. 회원 조회 (예외 처리)
-        Members member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+        Members member = memberService.getMemberById(request.getMemberId());
 
         // 2. 기존 자동적응 설정 조회 (없으면 예외 처리)
         AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
@@ -156,8 +153,7 @@ public class ExerciseSettingService {
     @Transactional
     public void changeDifficultySetting(String memberId, String difficulty) {
         // 1. 회원 조회 (예외 처리)
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+        Members member = memberService.getMemberById(memberId);
 
         // 2. 기존 자동적응 설정 조회 (Optional 처리)
         AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)
@@ -178,8 +174,7 @@ public class ExerciseSettingService {
 
 
         // 1. 회원 조회 (예외 처리)
-        Members member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+        Members member = memberService.getMemberById(request.getMemberId());
 
         // 2. 기존 자동적응 설정 조회 (없으면 예외 처리)
         AutoAdaptSettingEntity existingSetting = (AutoAdaptSettingEntity) autoAdaptSettingRepository.findByMember(member)

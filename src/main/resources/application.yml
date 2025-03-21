@@ -1,9 +1,13 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/onulbuinessdb
-    username: onulbuiness
-    password: Onulbuiness2024!
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
 
   security:
     headers:
@@ -23,12 +27,36 @@ spring:
     suffix: .html
     cache: false
 
+  jackson:
+    date-format: yyyy-MM-dd
+    time-zone: GMT+9
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
 logging:
   level:
-#    root: info
     org.springframework.web: DEBUG
     org.thymeleaf: DEBUG
 
 jwt:
-  key: wERjtIdxQ8lNjF0w/AAiN6HqTASaCAUzSq6nbKefMwf5CbPE8GvwLsClz94uVt9Q1esxYwwXVU+BYn7/mR01Qg==
-  time: 2592000000
+  key: ${JWT_SECRET_KEY}
+  access-token-time: ${JWT_ACCESS_TOKEN_TIME}
+  refresh-token-time: ${JWT_REFRESH_TOKEN_TIME}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY}
+  secret-key: ${AWS_SECRET_KEY}
+  region: ${AWS_REGION}
+
+redis:
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT}

@@ -134,4 +134,11 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
 
 
     void deleteByMember(Members member);
+
+    @Query("SELECT e.recordDate FROM ExerciseRecord e WHERE e.member = :member AND e.recordDate BETWEEN :startDate AND :endDate")
+    List<LocalDate> findExerciseDates(@Param("member") Members member, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
+    void deleteByRecordDateAndExerciseServiceNumberIdAndExerciseId(LocalDate date, Long exerciseServiceId, Long exerciseId);
+
 }

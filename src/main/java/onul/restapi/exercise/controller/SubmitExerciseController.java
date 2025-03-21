@@ -38,6 +38,8 @@ public class SubmitExerciseController {
         } catch (Exception e) {
             // 예외 발생 시 JSON 형식으로 에러 메시지 반환
 
+            exerciseRecordService.deleteExerciseRecordsByDate(date, exerciseRecordDTO);
+
             return ResponseEntity.status(500)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body("{\"message\":\"운동 기록 저장 중 오류가 발생했습니다.\"}");

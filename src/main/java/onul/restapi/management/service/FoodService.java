@@ -9,6 +9,7 @@ import onul.restapi.management.repository.FoodItemEntityRepository;
 import onul.restapi.management.repository.TotalFoodDataRepository;
 import onul.restapi.member.entity.Members;
 import onul.restapi.member.repository.MemberRepository;
+import onul.restapi.member.service.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,21 +23,20 @@ public class FoodService {
 
     private final FoodEntityRepository foodEntityRepository;
     private final FoodItemEntityRepository foodItemEntityRepository;
-    private final MemberRepository memberRepository;
     private final TotalFoodDataRepository totalFoodDataRepository;
+    private final MemberService memberService;
 
-    public FoodService(FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, MemberRepository memberRepository, TotalFoodDataRepository totalFoodDataRepository) {
+    public FoodService(FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, TotalFoodDataRepository totalFoodDataRepository, MemberService memberService) {
         this.foodEntityRepository = foodEntityRepository;
         this.foodItemEntityRepository = foodItemEntityRepository;
-        this.memberRepository = memberRepository;
         this.totalFoodDataRepository = totalFoodDataRepository;
+        this.memberService = memberService;
     }
 
     @Transactional
     public void saveFoodData(FoodDataRequest foodDataRequest) {
         // 1. Members 조회
-        Members member = memberRepository.findById(foodDataRequest.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + foodDataRequest.getMemberId()));
+        Members member = memberService.getMemberById(foodDataRequest.getMemberId());
 
         // 2. FoodEntity 존재 여부 확인
         Optional<FoodEntity> existingFoodEntity = foodEntityRepository.findByRecipeId(foodDataRequest.getRecipeId());
@@ -83,8 +83,7 @@ public class FoodService {
     @Transactional
     public void deleteFoodData(String memberId, String recipeId) {
         // 1. 회원 조회
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+        Members member = memberService.getMemberById(memberId);
 
         // 2. FoodEntity 조회
         Optional<FoodEntity> foodEntityOptional = foodEntityRepository.findByRecipeIdAndMember(recipeId, member);
@@ -109,8 +108,7 @@ public class FoodService {
     public List<FoodRecipeResponse> getAllFoodData(String memberId) {
         try {
             // 회원 조회
-            Members member = memberRepository.findById(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
+            Members member = memberService.getMemberById(memberId);
 
             // FoodEntity 조회
             List<FoodEntity> foodEntities = foodEntityRepository.findByMember(member);
@@ -143,8 +141,7 @@ public class FoodService {
     @Transactional
     public SavedFoodDataResponse saveTotalFoodData(SaveTotalFoodDataRequest request) {
         // 요청에서 전달받은 회원 ID를 사용하여 회원 정보를 조회합니다.
-        Members member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + request.getMemberId()));
+        Members member = memberService.getMemberById(request.getMemberId());
 
         // 요청에서 전달받은 날짜와 회원 ID, mealType에 해당하는 TotalFoodData를 조회합니다.
         TotalFoodData existingFoodData = totalFoodDataRepository.findByMember_memberIdAndDateAndMealType(
@@ -198,8 +195,6 @@ public class FoodService {
     @Transactional(readOnly = true)
     public List<SavedFoodDataResponse> getFoodRecordsForDate(String memberId, LocalDate date) {
         // 회원 조회
-        Members member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found with ID: " + memberId));
 
         // TotalFoodData 조회 (날짜와 회원 ID 기준으로 모든 데이터 조회)
         List<TotalFoodData> totalFoodDataList = totalFoodDataRepository.findAllByMember_memberIdAndDate(memberId, date);
