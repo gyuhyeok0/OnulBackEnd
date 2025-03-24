@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Onul 이용약관</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 20px;
+            line-height: 1.7;
+        }
+        h1 {
+            color: #2c2c2c;
+        }
+        h2 {
+            color: #555;
+            margin-top: 25px;
+        }
+        p {
+            margin: 12px 0;
+        }
+        ul {
+            margin: 12px 0;
+            padding-left: 22px;
+        }
+    </style>
+</head>
+<body>
+<div th:utext="${policyContent}"></div>
+</body>
+</html>
