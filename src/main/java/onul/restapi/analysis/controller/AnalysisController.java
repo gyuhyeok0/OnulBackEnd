@@ -5,11 +5,16 @@ import onul.restapi.analysis.dto.ExerciseVolumeDataResponse;
 import onul.restapi.analysis.dto.ExerciseVolumeResponse;
 import onul.restapi.analysis.dto.MuscleFatigueDTO;
 import onul.restapi.analysis.dto.WeightAndDietStatisticsDTO;
+import onul.restapi.analysis.entity.MemberLastLogin;
 import onul.restapi.analysis.entity.MuscleFatigue;
 import onul.restapi.analysis.entity.WeightAndDietStatistics;
+import onul.restapi.analysis.repository.MemberLastLoginRepository;
 import onul.restapi.analysis.service.AnalysisService;
+import onul.restapi.member.entity.Members;
+import onul.restapi.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -30,37 +36,53 @@ public class AnalysisController {
     private Executor asyncExecutor;
 
     private final AnalysisService analysisService;
+    private final MemberService memberService;
+    private final MemberLastLoginRepository memberLastLoginRepository;
 
-    // AnalysisService 주입 (생성자 기반 DI)
-    public AnalysisController(AnalysisService analysisService) {
+    public AnalysisController(AnalysisService analysisService, MemberService memberService, MemberLastLoginRepository memberLastLoginRepository) {
         this.analysisService = analysisService;
+        this.memberService = memberService;
+        this.memberLastLoginRepository = memberLastLoginRepository;
     }
 
 
-    @PostMapping("/update")
+    @PostMapping("/lastLoginRunDate")
     public ResponseEntity<?> updateAnalysis(
             @RequestParam("memberId") String memberId,
             @RequestParam("date") LocalDate date) {
 
-        try {
-            CompletableFuture.runAsync(() -> analysisService.updateVolumeStatistics(memberId, date), asyncExecutor)
-                    .thenRunAsync(() -> analysisService.updateWeightAndDietStatistics(memberId, date), asyncExecutor)
-                    .thenRunAsync(() -> analysisService.updateMuscleFatigue(memberId, date), asyncExecutor)
-                    .exceptionally(ex -> {  // ✅ 예외 발생 시 로깅 및 처리
-                        System.err.println("Error occurred in analysis tasks: " + ex.getMessage());
-                        return null;  // 예외가 발생해도 흐름이 깨지지 않도록 처리
-                    })
-                    .join();
-
-            return ResponseEntity.ok("All analysis tasks completed successfully.");
-        } catch (CompletionException e) {
-            // ✅ 내부 예외를 꺼내서 처리 (원래 예외를 추출)
-            Throwable cause = e.getCause();
-            return ResponseEntity.status(500).body("An error occurred: " + cause.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("An unexpected error occurred: " + e.getMessage());
+        // 1. 멤버 조회
+        Members member = memberService.getMemberById(memberId);
+        if (member == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Member not found.");
         }
+
+        // 2. MemberLastLogin 조회
+        Optional<MemberLastLogin> optional = memberLastLoginRepository.findByMember(member);
+
+        if (optional.isPresent()) {
+            MemberLastLogin lastLogin = optional.get();
+
+            // ✅ 날짜가 다를 때만 업데이트
+            if (!lastLogin.getLastLoginDate().equals(date)) {
+                lastLogin.setLastLoginDate(date);
+                memberLastLoginRepository.save(lastLogin);
+            } else {
+                System.out.println("Same date received, skipping save.");
+            }
+
+        } else {
+            // 처음 저장일 경우
+            MemberLastLogin newLogin = MemberLastLogin.builder()
+                    .member(member)
+                    .lastLoginDate(date)
+                    .build();
+            memberLastLoginRepository.save(newLogin);
+        }
+
+        return ResponseEntity.ok("Last login date processed.");
     }
+
 
 
     @GetMapping(value = "/findExerciseVolume", produces = MediaType.APPLICATION_JSON_VALUE)

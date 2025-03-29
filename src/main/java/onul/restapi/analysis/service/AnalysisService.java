@@ -876,12 +876,15 @@ public class AnalysisService {
 
     @Transactional(readOnly = true)
     public Map<String, List<MuscleFatigueDTO>> getMuscleFatigueByMemberAndToday(String memberId, LocalDate today) {
-        // 오늘 날짜를 기준으로 데이터를 조회
         List<MuscleFatigue> muscleFatigues = muscleFatigueRepository.findByMemberMemberIdAndCalculationDate(memberId, today);
 
-        // 근육 그룹별로 그룹화하고, DTO로 변환하여 반환
-        return muscleFatigues.stream()
-                .map(this::convertToDTO)  // 엔티티를 DTO로 변환
+        // 만약 데이터 많다면 병렬 스트림
+        return muscleFatigues.size() > 100
+                ? muscleFatigues.parallelStream()
+                .map(this::convertToDTO)
+                .collect(Collectors.groupingBy(MuscleFatigueDTO::getMuscleGroup))
+                : muscleFatigues.stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.groupingBy(MuscleFatigueDTO::getMuscleGroup));
     }
 

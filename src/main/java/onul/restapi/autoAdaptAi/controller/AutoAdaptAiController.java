@@ -107,7 +107,7 @@ public class AutoAdaptAiController {
             @RequestBody AutoAdaptRequestDTO request,
             @RequestParam("date") LocalDate date,
             @RequestHeader(value = "Authorization", required = false) String authHeader
-    ) throws JsonProcessingException {
+    ) throws JsonProcessingException, InterruptedException {
 
         // true: 생성할때 "자동" 으로만 넣어야해
 
@@ -133,8 +133,9 @@ public class AutoAdaptAiController {
             // ✅ 오늘 날짜에 데이터가 있는지 확인
             boolean exists = autoAdaptService.existsAutoAdaptForToday(request.getMemberId(),date);
 
+
             if (exists) {
-                return null;  // 데이터가 있으면 종료
+                return CompletableFuture.completedFuture(ResponseEntity.noContent().build());
             }
 
             // 없을때 자동으로
@@ -143,6 +144,7 @@ public class AutoAdaptAiController {
             List<String> newPriorityParts = Collections.singletonList("자동");
             // 기존 값을 무시하고 새 리스트로 설정
             defaltExerciseSetting.setPriorityParts(newPriorityParts);
+
 
         } else {
 
@@ -170,10 +172,10 @@ public class AutoAdaptAiController {
                         })
                 );
 
-
         // ✅ 3️⃣ 모든 비동기 작업이 끝나면 AI 추천 요청 전송
         return CompletableFuture.allOf(todayExerciseFatigueFuture, recentExercisesRecordFuture)
                 .thenCompose(voided -> {
+
                     Map<String, List<MuscleFatigueDTO>> todayExerciseFatigue = todayExerciseFatigueFuture.join();
                     Map<LocalDate, List<AiExerciseRecordDTO>> recentExercisesRecord = recentExercisesRecordFuture.join();
 
