@@ -15,7 +15,7 @@ import java.util.List;
 @Table(
         name = "my_exercises",
         indexes = {
-                @Index(name = "idx_muscle_group", columnList = "muscleGroup")
+                @Index(name = "idx_member_muscle_group", columnList = "member_id, muscleGroup")
         }
 )
 public class MyExercise {

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "privacy_policy")
+@Table(name = "privacy_policy", indexes = {
+        @Index(name = "idx_language", columnList = "language")
+})
 @Getter
 @Setter
 @NoArgsConstructor

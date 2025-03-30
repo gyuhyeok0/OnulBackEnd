@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Table(name = "total_food")
+@Table(name = "total_food", indexes = {
+        @Index(name = "idx_member_date", columnList = "member_id, date"),
+        @Index(name = "idx_member_date_meal", columnList = "member_id, date, mealType")
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

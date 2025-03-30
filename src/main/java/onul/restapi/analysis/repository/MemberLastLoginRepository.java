@@ -14,4 +14,6 @@ public interface MemberLastLoginRepository extends JpaRepository<MemberLastLogin
 
     List<MemberLastLogin> findByLastLoginDate(LocalDate today);
 
+    void deleteByMember(Members member);
+
 }

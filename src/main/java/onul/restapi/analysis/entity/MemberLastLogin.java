@@ -7,7 +7,14 @@ import onul.restapi.member.entity.Members;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "member_last_login")
+@Table(
+        name = "member_last_login",
+        indexes = {
+                @Index(name = "idx_member_id", columnList = "member_id"),
+                @Index(name = "idx_last_login_date", columnList = "last_login_date")
+        }
+)
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

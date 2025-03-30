@@ -12,12 +12,13 @@ import java.time.LocalDate;
 @Table(
         name = "exercise_record",
         indexes = {
-                @Index(name = "idx_record_date", columnList = "record_date")
+                @Index(name = "idx_record_date", columnList = "record_date"),
+                @Index(name = "idx_member_date_exercise", columnList = "member_id, record_date, exercise_id")
         },
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "unique_record_constraint",
-                        columnNames = {"record_date", "exercise_service_id", "exercise_record_id", "set_number"}
+                        columnNames = {"record_date", "exercise_service_id", "exercise_id", "set_number"}
                 )
         }
 )

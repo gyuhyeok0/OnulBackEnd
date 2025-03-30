@@ -12,8 +12,12 @@ import java.time.LocalDate;
         uniqueConstraints = @UniqueConstraint(
                 name = "unique_member_muscle_date",
                 columnNames = {"member_id", "muscleGroup", "calculationDate"}
-        )
-)@Getter
+        ),
+        indexes = {
+                @Index(name = "idx_member_date", columnList = "member_id, calculationDate")
+        }
+)
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

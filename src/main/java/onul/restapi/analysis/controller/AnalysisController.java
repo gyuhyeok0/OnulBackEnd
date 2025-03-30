@@ -31,9 +31,6 @@ import java.util.concurrent.Executor;
 @RequestMapping("/analysis")
 public class AnalysisController {
 
-    @Autowired
-    @Qualifier("analysis")
-    private Executor asyncExecutor;
 
     private final AnalysisService analysisService;
     private final MemberService memberService;

@@ -10,7 +10,11 @@ import onul.restapi.member.entity.Members;
 import java.util.Map;
 
 @Entity
-@Table(name = "food_items")
+@Table(name = "food_items",
+        indexes = {
+                @Index(name = "idx_member_id", columnList = "member_id"),
+                @Index(name = "idx_recipe_id", columnList = "recipe_id")
+        })
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

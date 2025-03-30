@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "tbl_exercises", indexes = {
-        @Index(name = "idx_main_muscle_group", columnList = "main_muscle_group"),
-        @Index(name = "idx_exercise_id", columnList = "id") // id 필드에 인덱스 추가
-
+        @Index(name = "idx_main_detail_muscle_group", columnList = "main_muscle_group, detail_muscle_group"),
+        @Index(name = "idx_exercise_name", columnList = "exercise_name")
 })
 @Getter
 @Builder

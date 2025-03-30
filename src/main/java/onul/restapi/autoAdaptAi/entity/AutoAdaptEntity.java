@@ -14,7 +14,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true) // 기존 객체를 빌더로 변경 가능하도록 추가
-@Table(name = "auto_adapt") // 테이블명 유지
+@Table(
+        name = "auto_adapt",
+        indexes = {
+                @Index(name = "idx_member_date", columnList = "member_id, date")
+        }
+)
 public class AutoAdaptEntity {
 
     @Id

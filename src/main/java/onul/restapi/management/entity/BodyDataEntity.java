@@ -9,9 +9,6 @@ import java.time.LocalDate;
 @Entity
 @Table(
         name = "body_data",
-        indexes = {
-                @Index(name = "idx_date", columnList = "date")
-        },
         uniqueConstraints = {
                 @UniqueConstraint(name = "unique_member_date", columnNames = {"member_id", "date"})
         }

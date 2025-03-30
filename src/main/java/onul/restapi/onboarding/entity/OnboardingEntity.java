@@ -14,7 +14,9 @@ import onul.restapi.member.entity.Members;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "onboarding_info")
+@Table(name = "onboarding_info", indexes = {
+        @Index(name = "idx_member_id", columnList = "member_id")
+})
 public class OnboardingEntity {
 
     @Id

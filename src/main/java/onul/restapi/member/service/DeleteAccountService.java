@@ -1,7 +1,9 @@
 package onul.restapi.member.service;
 
+import onul.restapi.analysis.entity.MemberLastLogin;
 import onul.restapi.analysis.repository.ExerciseGroupVolumeStatsRepository;
 import onul.restapi.analysis.repository.ExerciseVolumeRepository;
+import onul.restapi.analysis.repository.MemberLastLoginRepository;
 import onul.restapi.analysis.repository.MuscleFatigueRepository;
 import onul.restapi.autoAdaptAi.repository.AutoAdaptRepository;
 import onul.restapi.autoAdaptAi.repository.AutoAdaptSettingRepository;
@@ -15,6 +17,7 @@ import onul.restapi.member.repository.MemberRepository;
 import onul.restapi.member.repository.SignupMember;
 import onul.restapi.onboarding.rapository.OnboardingRepository;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,8 +52,9 @@ public class DeleteAccountService {
     private final SignupMember signupMember;
     private final InquiryRepository inquiryRepository;
     private final MemberService memberService;
+    private final MemberLastLoginRepository memberLastLoginRepository;
 
-    public DeleteAccountService(ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository, ExerciseVolumeRepository exerciseVolumeRepository, MuscleFatigueRepository muscleFatigueRepository, AutoAdaptRepository autoAdaptRepository, AutoAdaptSettingRepository autoAdaptSettingRepository, ExerciseRecordRepository exerciseRecordRepository, IntensityRepository intensityRepository, MyExerciseRepository myExerciseRepository, ScheduleRepository scheduleRepository, BodyDataRepository bodyDataRepository, FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, OnboardingRepository onboardingRepository, MemberRepository memberRepository, SignupMember signupMember, InquiryRepository inquiryRepository, MemberService memberService) {
+    public DeleteAccountService(ExerciseGroupVolumeStatsRepository exerciseGroupVolumeStatsRepository, ExerciseVolumeRepository exerciseVolumeRepository, MuscleFatigueRepository muscleFatigueRepository, AutoAdaptRepository autoAdaptRepository, AutoAdaptSettingRepository autoAdaptSettingRepository, ExerciseRecordRepository exerciseRecordRepository, IntensityRepository intensityRepository, MyExerciseRepository myExerciseRepository, ScheduleRepository scheduleRepository, BodyDataRepository bodyDataRepository, FoodEntityRepository foodEntityRepository, FoodItemEntityRepository foodItemEntityRepository, TotalFoodDataRepository totalFoodDataRepository, WeightAndDietStatisticsRepository weightAndDietStatisticsRepository, OnboardingRepository onboardingRepository, MemberRepository memberRepository, SignupMember signupMember, InquiryRepository inquiryRepository, MemberService memberService, MemberLastLoginRepository memberLastLoginRepository) {
         this.exerciseGroupVolumeStatsRepository = exerciseGroupVolumeStatsRepository;
         this.exerciseVolumeRepository = exerciseVolumeRepository;
         this.muscleFatigueRepository = muscleFatigueRepository;
@@ -70,8 +74,11 @@ public class DeleteAccountService {
         this.signupMember = signupMember;
         this.inquiryRepository = inquiryRepository;
         this.memberService = memberService;
+        this.memberLastLoginRepository = memberLastLoginRepository;
     }
 
+
+    @Async("withdrawExecutor") // 💥 여기 추가!
     @Transactional
     public void deleteAccount(String memberId) {
 
@@ -98,6 +105,7 @@ public class DeleteAccountService {
         totalFoodDataRepository.deleteByMember(member);
         weightAndDietStatisticsRepository.deleteByMember(member);
         onboardingRepository.deleteByMember(member);
+        memberLastLoginRepository.deleteByMember(member);
 
         // 🔥 4. 최종적으로 회원 삭제
         memberRepository.deleteById(memberId);

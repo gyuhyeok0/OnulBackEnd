@@ -12,7 +12,7 @@ import java.time.LocalDate;
         name = "analysis_exercise_volume_stats",
         indexes = {
                 @Index(name = "idx_member_date_exercise", columnList = "member_id, recordDate, exercise_id"),
-                @Index(name = "idx_member_date", columnList = "member_id, recordDate")
+                @Index(name = "idx_detail_muscle_group", columnList = "detailMuscleGroup")
         }
 )
 @Getter

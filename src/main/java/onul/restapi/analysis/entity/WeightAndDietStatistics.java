@@ -7,7 +7,9 @@ import onul.restapi.member.entity.Members;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "weight_and_diet_statistics")
+@Table(name = "weight_and_diet_statistics", indexes = {
+        @Index(name = "idx_member_date", columnList = "member_id, date")
+})
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

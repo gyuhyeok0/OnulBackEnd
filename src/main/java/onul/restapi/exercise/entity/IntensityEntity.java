@@ -10,12 +10,10 @@ import onul.restapi.member.entity.Members;
 import java.util.Date;
 
 @Entity
-@Table(name = "tbl_intensity",
-        indexes = {
-                @Index(name = "idx_created_at", columnList = "created_at") // created_at에 인덱스 추가
-        },
+@Table(
+        name = "tbl_intensity",
         uniqueConstraints = {
-                @UniqueConstraint(name = "unique_member_created_at", columnNames = {"member_id", "created_at"}) // 유니크 제약 조건 추가
+                @UniqueConstraint(name = "unique_member_created_at", columnNames = {"member_id", "created_at"})
         }
 )
 @Getter
