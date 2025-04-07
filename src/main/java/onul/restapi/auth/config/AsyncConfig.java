@@ -8,55 +8,82 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 
 @Configuration
-@EnableAsync  // ✅ @Async 기능 활성화
+@EnableAsync
 public class AsyncConfig {
 
-    // ai 요청전 필요한 db 데이터 가지고옴 1인당 cpu 40% 미만, ai 요청시에만 작동
+    private int getCpuCores() {
+        return Runtime.getRuntime().availableProcessors();
+    }
+
+    /**
+     * 하루 1회 실행
+     * AI 요청 전에 필요한 DB 정보 로드
+     * CPU 점유율 낮고, 실행 간단함
+     */
     @Bean(name = "asyncExecutor")
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);  // ✅ 동시에 실행할 스레드 수 (2명만 동시 실행)
-        executor.setMaxPoolSize(3);   // ✅ 최대 스레드 수도 2로 고정 (더 이상 늘어나지 않음)
-        executor.setQueueCapacity(100000); //
+        int cpuCores = getCpuCores();
+
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(cpuCores >= 4 ? 3 : 1);
+        executor.setQueueCapacity(10000);
+        executor.setKeepAliveSeconds(30);
         executor.setThreadNamePrefix("AsyncExecutor-");
         executor.initialize();
         return executor;
     }
 
-    // ai 요청 1인당 cpu 60% 앱 킬때 하루 1번, 하루 평균 1.3 회 작동. 1 인당 0.5 초정도 걸림
+    /**
+     * AI 요청 실행
+     * 앱 실행 시 하루 1~2회 작동, CPU 사용 중간
+     * 순간적으로 몰릴 가능성 낮음
+     */
     @Bean(name = "aiExecutor")
     public Executor aiExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);  // ✅ AI 요청 전용 스레드 개수 (2개)
-        executor.setMaxPoolSize(3);   // ✅ 최대 스레드 수도 2개로 고정
-        executor.setQueueCapacity(100000); // ✅ 초과된 요청은 최대 1000개까지 대기 가능
+        int cpuCores = getCpuCores();
+
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(cpuCores >= 4 ? 3 : 1);
+        executor.setQueueCapacity(10000);
+        executor.setKeepAliveSeconds(30);
         executor.setThreadNamePrefix("AiExecutor-");
         executor.initialize();
         return executor;
     }
 
-    // am 12 시 자동 작동, 1인당 cpu 100% 이하로 작동 예상, 1 인당 0.5 초정도 걸림
+    /**
+     * 자정마다 실행되는 자동 분석 작업
+     * 동시에 여러 사용자 분석이 돌아갈 수 있어 여유 필요
+     */
     @Bean(name = "analysis")
-    public Executor analysis() {
+    public Executor analysisExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);  // ✅ 1인당 2스레드 동작
-        executor.setMaxPoolSize(4);   // ✅
-        executor.setQueueCapacity(100000); // ✅ 대기열 1000
-        executor.setThreadNamePrefix("Analysis-");
+        int cpuCores = getCpuCores();
+
+        executor.setCorePoolSize(cpuCores >= 4 ? 2 : 1);
+        executor.setMaxPoolSize(cpuCores >= 4 ? 4 : 2);
+        executor.setQueueCapacity(100000);
+        executor.setKeepAliveSeconds(60); // 자정 작업이라 조금 오래 살아도 됨
+        executor.setThreadNamePrefix("AnalysisExecutor-");
         executor.initialize();
         return executor;
     }
 
-    // 회원 탈퇴 오래걸려도 상관없음
+    /**
+     * 회원 탈퇴 요청
+     * 시간 오래 걸려도 되고, 사용자 수 적음
+     */
     @Bean(name = "withdrawExecutor")
     public Executor withdrawExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(1);
-        executor.setQueueCapacity(100000);
+        executor.setQueueCapacity(10000);
+        executor.setKeepAliveSeconds(60);
         executor.setThreadNamePrefix("WithdrawExecutor-");
         executor.initialize();
         return executor;
     }
-
 }

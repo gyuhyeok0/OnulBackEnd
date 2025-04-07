@@ -56,6 +56,7 @@ public class AutoAdaptAiController {
         this.aiRecommendationService = aiRecommendationService;
     }
 
+    // setting 값 가지고오기
     @GetMapping(value = "/getAutoAdaptSetting", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAutoAdaptSetting(@RequestParam("memberId") String memberId) {
         AutoAdaptSettingDTO response = exerciseSettingService.selectAutoAdaptSetting(memberId);
@@ -65,6 +66,7 @@ public class AutoAdaptAiController {
                 .body(response);
     }
 
+    // setting 값 변경
     @PostMapping(value = "/updateAutoAdaptSetting", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, String>> updateAutoAdaptSetting(@RequestBody AutoAdaptSettingRequstDTO request) {
 
@@ -82,6 +84,7 @@ public class AutoAdaptAiController {
         }
     }
 
+    // setting 우선순위 변경
     @PostMapping(value = "/changePriorityPartsSetting", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> changePriorityPartsSetting(@RequestBody PriorityPartsRequestDTO request) {
 
@@ -101,7 +104,7 @@ public class AutoAdaptAiController {
     }
 
 
-    // ✅ 새로운 AI 추천 요청 API 추가
+    // 8000 번으로 ai 요청
     @PostMapping(value = "/aiRequest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<ResponseEntity<?>> requestAiRecommendation(
             @RequestBody AutoAdaptRequestDTO request,
@@ -116,7 +119,6 @@ public class AutoAdaptAiController {
 
 //      1분 동안 최대 2번만 요청 허용 (3번째 요청부터 차단)
         if (!requestLimitService.isRequestAllowed(authHeader)) {
-            System.out.println("⚠️ Too many requests from user. Request blocked. (UserToken: " + authHeader + ")");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("error", "Too many requests", "message", "You can only request twice in 8 minutes.")));
@@ -206,7 +208,7 @@ public class AutoAdaptAiController {
     }
 
 
-
+    // 하루에 한번 setting 자동으로 초기화
     @PostMapping(value = "/autoAdaptExercises", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> autoAdaptExercises(@RequestBody AutoAdaptDTO request) {
         try {

@@ -114,19 +114,16 @@ public interface ExerciseRecordRepository extends JpaRepository<ExerciseRecord, 
 
 
     @Query("SELECT DISTINCT er.recordDate FROM ExerciseRecord er " +
-            "JOIN er.exerciseServiceNumber esn " +
             "WHERE er.member.memberId = :memberId " +
-            "AND esn.id = 3 " + // 🔥 exercise_service_id = 3 추가
-            "AND er.recordDate < CURRENT_DATE " + // 오늘 제외
+            "AND er.exerciseServiceNumber.id = 3 " + // exerciseServiceNumber 엔티티의 ID 필드 접근
+            "AND er.recordDate < CURRENT_DATE " +
             "ORDER BY er.recordDate DESC")
     List<LocalDate> findRecent6Days(@Param("memberId") String memberId, Pageable pageable);
 
-
     @Query("SELECT er FROM ExerciseRecord er " +
-            "JOIN er.exerciseServiceNumber esn " +
             "WHERE er.member.memberId = :memberId " +
-            "AND esn.id = 3 " + // 🔥 exercise_service_id = 3 조건 추가
-            "AND er.recordDate IN :recentDates " + // 🔥 최근 6일 날짜만 조회
+            "AND er.exerciseServiceNumber.id = 3 " +
+            "AND er.recordDate IN :recentDates " +
             "ORDER BY er.recordDate DESC")
     List<ExerciseRecord> findExercisesByRecentDates(
             @Param("memberId") String memberId,

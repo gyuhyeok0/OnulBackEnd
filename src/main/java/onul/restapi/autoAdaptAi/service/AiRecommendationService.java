@@ -36,7 +36,6 @@ public class AiRecommendationService {
     @Async("aiExecutor")
     public CompletableFuture<ResponseEntity<?>> sendAiRequest(String jsonPayload, LocalDate date, String memberId) {
         try {
-            System.out.println("✅ AI 추천 요청 시작");
 
             // ✅ Python 서버로 HTTP POST 요청
             HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -57,7 +56,6 @@ public class AiRecommendationService {
             AutoAdaptDTO autoAdaptDTO = new AutoAdaptDTO(exerciseList, date, memberId);
             autoAdaptService.saveOrUpdateAutoAdapt(autoAdaptDTO);
 
-            System.out.println("✅ AI 추천 데이터 저장 완료");
 
             return CompletableFuture.completedFuture(ResponseEntity.ok().build());
 

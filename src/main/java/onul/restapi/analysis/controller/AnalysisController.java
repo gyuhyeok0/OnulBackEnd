@@ -42,7 +42,6 @@ public class AnalysisController {
         this.memberLastLoginRepository = memberLastLoginRepository;
     }
 
-
     @PostMapping("/lastLoginRunDate")
     public ResponseEntity<?> updateAnalysis(
             @RequestParam("memberId") String memberId,
@@ -65,7 +64,6 @@ public class AnalysisController {
                 lastLogin.setLastLoginDate(date);
                 memberLastLoginRepository.save(lastLogin);
             } else {
-                System.out.println("Same date received, skipping save.");
             }
 
         } else {
