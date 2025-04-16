@@ -52,7 +52,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // API 호출을 제외할 URL 패턴 설정
         List<String> roleLeessList = Arrays.asList(
 
+                "/internal/(.*)",
                 "/actuator/(.*)",
+                "/webinquiry",
+
+                "/",
+                "/ads.txt",
+                "/app-ads.txt",
+                "/images/(.*)",
 
                 "/auth/autoAdapt",
                 "/analysis/update",

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -41,7 +42,7 @@ public class AnalysisScheduler {
 
 
     // 매일 자정 실행
-    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Tokyo")
+    @Scheduled(cron = "0 0 0 * * *", zone = "America/Los_Angeles")
     @Transactional
     public void runDailyAnalysis() {
         String lockKey = "dailyAnalysisLock";
@@ -49,18 +50,23 @@ public class AnalysisScheduler {
         if (redisTemplate.opsForValue().setIfAbsent(lockKey, "locked", 10, TimeUnit.MINUTES)) {
             try {
                 readinessService.markReadinessDown(); // 트래픽 차단
-                LocalDate today = LocalDate.now();
+
+                // 4월 10일
+                LocalDate today = LocalDate.now(ZoneId.of("America/Los_Angeles"));
                 LocalDate yesterday = today.minusDays(1);
+                LocalDate twoDaysAgo = today.minusDays(2);
 
-                log.info("▶ Daily analysis started for date: {}", yesterday);
+                List<MemberLastLogin> logins = memberLastLoginRepository.findByLastLoginDateIn(List.of(twoDaysAgo, yesterday));
+                log.info("▶ 분석 대상 날짜: {}, {}", twoDaysAgo, yesterday);
+                log.info("▶ 분석 대상 사용자 수: {}명", logins.size());
 
-                List<MemberLastLogin> logins = memberLastLoginRepository.findByLastLoginDate(yesterday);
                 List<CompletableFuture<Void>> futures = new ArrayList<>();
 
                 for (MemberLastLogin login : logins) {
                     String memberId = login.getMember().getMemberId();
 
                     CompletableFuture<Void> task = CompletableFuture
+
                             .runAsync(() -> analysisService.updateVolumeStatistics(memberId, today), analysisExecutor)
                             .thenRunAsync(() -> analysisService.updateWeightAndDietStatistics(memberId, today), analysisExecutor)
                             .thenRunAsync(() -> analysisService.updateMuscleFatigue(memberId, today), analysisExecutor)
