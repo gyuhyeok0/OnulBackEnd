@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/sms")
 public class SmsController {
@@ -32,31 +34,34 @@ public class SmsController {
         this.memberRepository = memberRepository;
     }
 
+
     // sms 인증번호 요청
     @PostMapping("/send")
     public ResponseEntity<SmsResponse> sendSms(@RequestBody VerificationRequestDTO smsRequest) {
+        String phoneNumber = smsRequest.getPhoneNumber();
 
         // SmsService에서 요청을 처리하고 상태를 반환
-        SmsResponse response = smsService.sendSms(smsRequest.getPhoneNumber(), false);
+        SmsResponse response = smsService.sendSms(phoneNumber, false);
 
-        // 상태에 따라 적절한 HTTP 응답 반환
+        // 실패 케이스만 로그
         if ("LIMIT_EXCEEDED".equals(response.getStatus())) {
+            log.warn("상태: LIMIT_EXCEEDED (시간 제한 초과)");
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .contentType(MediaType.APPLICATION_JSON) // 응답을 JSON으로 반환
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(response);
         }
 
-        // 일일 요청 횟수 초과 시 처리
         if ("DAILY_LIMIT_EXCEEDED".equals(response.getStatus())) {
+            log.warn("상태: DAILY_LIMIT_EXCEEDED (일일 제한 초과)");
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .contentType(MediaType.APPLICATION_JSON) // 응답을 JSON으로 반환
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(response);
         }
 
-        // 성공적인 요청 처리
+        // 성공 응답 (로그 없음)
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON) // 응답 타입 명시
-                .body(response);  // 상태만 반환
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
     }
 
 
@@ -64,7 +69,7 @@ public class SmsController {
     @PostMapping("/verify")
     public String verifyCode(@RequestBody VerificationRequestDTO verificationRequest) {
         String phoneNumber = verificationRequest.getPhoneNumber();
-        String code = verificationRequest.getCode();
+        String code = verificationRequest.getCode().trim(); // 공백 제거
 
 
         // 전화번호 해시화
@@ -86,9 +91,13 @@ public class SmsController {
         if (code.equals(codeEntity.getCode()) && !isExpired(codeEntity.getExpiryTime())) {
             return "Verification successful";
         } else {
+            if (!code.equals(codeEntity.getCode())) {
+                log.warn("인증 코드 불일치 - 입력: {}, 저장: {}", code, codeEntity.getCode());
+            }
             return "Invalid or expired code";
         }
     }
+
 
     // 코드 만료 여부를 확인하는 메서드
     private boolean isExpired(Long expiryTime) {

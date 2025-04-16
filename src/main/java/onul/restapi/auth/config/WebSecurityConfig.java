@@ -35,7 +35,7 @@ public class WebSecurityConfig {
     // 정적 자원에 대한 인증된 사용자의 접근 가능 설정
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
-        return (web -> web.ignoring().requestMatchers("/css/**","/js/**","/images/**","/lib/**","/memberimgs/**"));
+        return (web -> web.ignoring().requestMatchers("/css/**","/js/**","/lib/**","/memberimgs/**"));
     }
 
     @Bean
