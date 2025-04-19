@@ -56,6 +56,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 "/actuator/(.*)",
                 "/webinquiry",
                 "/auth/apple",
+                "/auth/google",
+
 
                 "/",
                 "/ads.txt",

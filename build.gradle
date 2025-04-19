@@ -75,6 +75,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+    implementation 'com.google.api-client:google-api-client:2.2.0'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.43.3'
 
 
 }

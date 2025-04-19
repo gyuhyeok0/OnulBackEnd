@@ -6,6 +6,7 @@ import onul.restapi.analysis.repository.MemberLastLoginRepository;
 import onul.restapi.common.ReadinessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,9 @@ public class AnalysisScheduler {
         this.readinessService = readinessService;
     }
 
+    @Value("${onul.timezone}")
+    private String zoneIdConfig;
+
     @Autowired
     @Qualifier("analysis")
     private Executor analysisExecutor;
@@ -42,7 +46,7 @@ public class AnalysisScheduler {
 
 
     // 매일 자정 실행
-    @Scheduled(cron = "0 0 0 * * *", zone = "America/Los_Angeles")
+    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void runDailyAnalysis() {
         String lockKey = "dailyAnalysisLock";
@@ -52,7 +56,8 @@ public class AnalysisScheduler {
                 readinessService.markReadinessDown(); // 트래픽 차단
 
                 // 4월 10일
-                LocalDate today = LocalDate.now(ZoneId.of("America/Los_Angeles"));
+                ZoneId zoneId = ZoneId.of(zoneIdConfig);  // 동적으로 타임존 적용
+                LocalDate today = LocalDate.now(zoneId);
                 LocalDate yesterday = today.minusDays(1);
                 LocalDate twoDaysAgo = today.minusDays(2);
 
