@@ -4,6 +4,8 @@ import onul.restapi.member.entity.Members;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MemberRepository extends JpaRepository<Members, String> {
     Members findByMemberId(String memberId);
@@ -12,4 +14,5 @@ public interface MemberRepository extends JpaRepository<Members, String> {
     boolean existsByMemberPhoneNumber(String phoneNumber);
 
     boolean existsByMemberId(String memberId);
+
 }
