@@ -46,6 +46,7 @@ public class Members {
     @Column(name = "member_status")
     private MemberStatus memberStatus;
 
+
     // 상태 업데이트 메서드
     public Members updateMemberStatus(MemberStatus status) {
         this.memberStatus = status;
