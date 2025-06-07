@@ -103,3 +103,50 @@ readinessService.markReadinessUp();   // 분석 완료 후 트래픽 재개
 
 ---
 
+# Onul 백엔드 인프라 구성도
+
+```plaintext
+[사용자 / 리액트 네이티브 앱]
+            │
+            ▼
+[Route 53 - onulfit.com]
+     (도메인 요청 처리)
+            │
+            ▼
+[ALB (퍼블릭, 3AZ, IGW 연결)]
+     ├─ 퍼블릭 IP 보유
+     └─ AWS WAF 연결
+            │
+            ▼
+[AWS WAF]
+     ├─ SQL Injection 차단
+     ├─ XSS 차단
+     └─ 악성 IP / VPN 우회 차단
+            │
+            ▼
+[Target Group → EC2 Auto Scaling Group]
+     ├─ 프라이빗 서브넷의 EC2 추적
+     └─ ALB가 요청 라우팅
+            │
+            ▼
+[EC2 인스턴스 (Docker, 백엔드 앱)]
+     ├─ 퍼블릭 IP 없음 (외부 접근 차단)
+     ├─ 프라이빗 서브넷에 위치
+     └─ SSM 접속만 허용
+            │
+            ▼
+[NAT Gateway + IGW]
+     ├─ 퍼블릭 서브넷 내 NAT 통해 외부 요청 처리 (단방향)
+     └─ 예: apt update, Docker pull 등
+            │
+            ▼
+[RDS (MySQL, db.t3.micro)]
+     ├─ 프라이빗 서브넷 내부 전용
+     ├─ 퍼블릭 IP 없음
+     └─ EC2에서만 접속 가능
+            │
+            ▼
+[SSM (Session Manager)]
+     ├─ SSH 미사용
+     └─ 보안 강화 (포트 개방 불필요)
+
